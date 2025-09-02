@@ -1,9 +1,9 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
 Gemfile.lock
+INSTALL.md
+FAQ.md
+_site
+.*
+README.md
 FAQ.md
 INSTALL.md
 README.md
