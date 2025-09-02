@@ -1,7 +1,7 @@
 # _config.yml
 title: My GitHub Pages Blog
 description: A simple blog powered by Jekyll with Gitalk comments.
-url: "https://Leakbox258.github.io"  # 替换为你的站点 URL
+url: "https://Leakbox258.github.io"
 permalink: /:year/:month/:day/:title/
 markdown: kramdown
 plugins:
@@ -14,6 +14,6 @@ defaults:
     values:
       layout: "post"
 gitalk:
-  repo: "Leakbox258.github.io"  # 替换为你的仓库名，例如 "yourusername.github.io"
-  owner: "LeakBox258"   # 替换为你的 GitHub 用户名
-  admins: ["LeakBox258"]  # 管理员用户名
+  repo: "Leakbox258.github.io"
+  owner: "LeakBox258"
+  admins: ["LeakBox258"]
