@@ -3,6 +3,7 @@ name: Deploy site
 on:
   push:
     branches:
+      - dark_style
       - master
       - main
     paths:
