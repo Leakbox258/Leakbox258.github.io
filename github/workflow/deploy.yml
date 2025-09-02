@@ -3,7 +3,7 @@ name: Deploy site
 on:
   push:
     branches:
-      - master
+      - dark_style
       - main
     paths:
       - "assets/**"
