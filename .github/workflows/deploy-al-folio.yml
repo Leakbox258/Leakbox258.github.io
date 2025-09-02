@@ -116,6 +116,8 @@ jobs:
     needs: build
     if: github.event_name != 'pull_request'
     steps:
+      - name: Checkout repository 🛎️
+        uses: actions/checkout@v4
       - name: Download artifact 📥
         uses: actions/download-artifact@v4
         with:
@@ -128,3 +130,4 @@ jobs:
         with:
           folder: _site
           branch: al-folio-gh-action
+          clean: true
