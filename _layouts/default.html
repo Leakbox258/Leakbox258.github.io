@@ -1,0 +1,24 @@
+<!-- _layouts/default.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page.title }} | {{ site.title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.css">
+</head>
+
+<body>
+    <header>
+        <h1><a href="/">{{ site.title }}</a></h1>
+        <p>{{ site.description }}</p>
+    </header>
+    <main>
+        {{ content }}
+    </main>
+    <footer>
+        &copy; {{ 'now' | date: "%Y" }} Your Name
+    </footer>
+</body>
+
+</html>

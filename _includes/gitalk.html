@@ -1,0 +1,15 @@
+<!-- _includes/gitalk.html -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.7.2/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: 'Ov23li5oRbrtcyhdmuAK',
+        clientSecret: '1daaf02df9b4a1a2925f8cbbf7046840ba38c9f5',
+        repo: '{{ site.gitalk.repo }}',
+        owner: '{{ site.gitalk.owner }}',
+        admin: '{{ site.gitalk.admins | jsonify }}',
+        id: location.pathname,
+        distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+</script>

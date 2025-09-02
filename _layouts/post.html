@@ -1,0 +1,12 @@
+<!-- _layouts/post.html -->
+---
+layout: default
+---
+<article>
+    <h1>{{ page.title }}</h1>
+    <p>{{ page.date | date: "%Y-%m-%d" }}</p>
+    {{ content }}
+</article>
+
+<div id="gitalk-container"></div>
+{% include gitalk.html %}
