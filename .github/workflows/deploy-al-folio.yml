@@ -64,7 +64,9 @@ on:
 
 permissions:
   contents: write
-
+  pages: write    # Required for GitHub Pages deployment
+  id-token: write # Required for OIDC token in actions/deploy-pages@v4
+  
 jobs:
   build:
     # available images: https://github.com/actions/runner-images#available-images
