@@ -124,7 +124,7 @@ jobs:
           name: site-artifact
           path: _site
       - name: List downloaded _site contents 🕵️
-        run: ls -la _site & cp _site al-folio
+        run: ls -la _site & cp -r _site al-folio
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
