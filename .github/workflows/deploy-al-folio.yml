@@ -122,9 +122,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site-artifact
-          path: _site
-      - name: List downloaded _site contents 🕵️
-        run: ls -la _site & cp -r _site ~/al-folio
+          path: al-folio
+      - name: List downloaded al-folio contents 🕵️
+        run: ls -la al-folio
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
