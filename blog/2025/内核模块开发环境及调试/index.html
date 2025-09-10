@@ -1,0 +1,174 @@
+<!DOCTYPE html> <html lang="cn"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> 内核模块开发环境及调试 | Leak Box 258 </title> <meta name="author" content="Leak Box 258"> <meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. "> <meta name="keywords" content="PL, Rust, C++, Linux"> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%99%BF%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://leakbox258.github.io/blog/2025/%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E5%8F%8A%E8%B0%83%E8%AF%95/"> <script src="/assets/js/theme.js?a81d82887dd692e91686b43de4542f18"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> <span class="font-weight-bold">Leak</span> Box 258 </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">about </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">publications </a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">projects </a> </li> <li class="nav-item "> <a class="nav-link" href="/repositories/">repositories </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">cv </a> </li> <li class="nav-item "> <a class="nav-link" href="/teaching/">teaching </a> </li> <li class="nav-item "> <a class="nav-link" href="/people/">people </a> </li> <li class="nav-item dropdown "> <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">submenus </a> <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> <a class="dropdown-item " href="/books/">bookshelf</a> <div class="dropdown-divider"></div> <a class="dropdown-item " href="/blog/">blog</a> </div> </li> <li class="nav-item"> <button id="search-toggle" title="Search" onclick="openSearchModal()"> <span class="nav-link">ctrl k <i class="ti ti-search"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="ti ti-sun-moon" id="light-toggle-system"></i> <i class="ti ti-moon-filled" id="light-toggle-dark"></i> <i class="ti ti-sun-filled" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">内核模块开发环境及调试</h1> <p class="post-meta"> Created on February 24, 2025 by 久菜合子 </p> <p class="post-tags"> <a href="/blog/2025"> <i class="fa-solid fa-calendar fa-sm"></i> 2025 </a>   ·   <a href="/blog/tag/env"> <i class="fa-solid fa-hashtag fa-sm"></i> env</a>   <a href="/blog/tag/dev"> <i class="fa-solid fa-hashtag fa-sm"></i> dev</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <p>ps: OS课用</p> <h2 id="qemu虚拟机">Qemu虚拟机</h2> <h4 id="-qemu下载">  qemu下载</h4> <h5 id="直接apt下一个即可-建议使用模拟x86的qemu-这样可以避免使用交叉编译器">   直接apt下一个即可, 建议使用模拟x86的qemu, 这样可以避免使用交叉编译器<br> </h5> <h4 id="-direct-linux-boot">  Direct Linux Boot</h4> <h5 id="一方面-可以使用qemu-img制作一个镜像-然后用qemu模拟运行">   一方面, 可以使用<code class="language-plaintext highlighter-rouge">qemu-img</code>制作一个镜像, 然后用<code class="language-plaintext highlighter-rouge">qemu</code>模拟运行<br> </h5> <h5 id="qemu支持所谓直接引导linux内核direct-linux-boot的方式启动虚拟机-更适合内核的测试-httpswwwqemuorgdocsmastersystemlinuxboothtml">   <code class="language-plaintext highlighter-rouge">qemu</code>支持所谓”直接引导Linux内核(Direct Linux Boot)”的方式启动虚拟机, 更适合内核的测试 https://www.qemu.org/docs/master/system/linuxboot.html</h5> <h5 id="此种方式需要准备三个部分">   此种方式需要准备三个部分:</h5> <h5 id="1-一个压缩的linux内核镜像-俗称bzimage2-一个临时根文件系统initrd3指定根文件设备的挂载-如果initrd已经是一个可用的文件系统-则此处省略">    1. 一个压缩的Linux内核镜像, 俗称bzImage<br>    2. 一个临时根文件系统initrd<br>    3.指定根文件设备的挂载, 如果initrd已经是一个可用的文件系统, 则此处省略</h5> <h5 id="此外这种方式还支持gdb-attach-是之后主要的调试方法">    此外这种方式还支持<code class="language-plaintext highlighter-rouge">gdb-attach</code>, 是之后主要的调试方法</h5> <h2 id="准备开发环境">准备开发环境</h2> <h4 id="linux-headers"> linux-headers</h4> <h5 id="内核模块的编译和构建需要一些特定的宏-数据结构以及函数-这些东西常用的头文件中没有-需要下载专门的linux-headers">   内核模块的编译和构建需要一些特定的宏, 数据结构以及函数, 这些东西常用的头文件中没有, 需要下载专门的<code class="language-plaintext highlighter-rouge">linux-headers</code><br> </h5> <h5 id="如果你的apt或者别的什么包管理器可以直接下载对应版本的linux-headers-但极有可能是找不到的">   如果你的apt或者别的什么包管理器可以直接下载对应版本的<code class="language-plaintext highlighter-rouge">linux-headers</code>, 但极有可能是找不到的<br> </h5> <h5 id="首先从httpswwwkernelorg-下一个linux-61129tarxz-或者curl--o--l-httpsmirrorstunatsinghuaeducnkernelv5xlinux-61129tarxz">   首先从https://www.kernel.org/, 下一个linux-6.1.129.tar.xz; 或者<code class="language-plaintext highlighter-rouge">curl -O -L https://mirrors.tuna.tsinghua.edu.cn/kernel/v5.x/linux-6.1.129.tar.xz</code> </h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ unxz linux-6.1.129.tar.xz
+$ tar -xf linux-6.1.129.tar
+</code></pre></div></div> <h5 id="进入源码目录之后-make-menuconfig进入图形化配置界面需要全屏-勾选以下内容">   进入源码目录之后, <code class="language-plaintext highlighter-rouge">make menuconfig</code>进入图形化配置界面(需要全屏), 勾选以下内容</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 便于调试
+Kernel hacking -&gt; Compile-time checks and compiler options -&gt; Debug information (Disable debug information) -&gt; Rely on the toolchain's implicit default DWARF version
+Kernel hacking -&gt; Generic Kernel Debugging Instruments -&gt; KGDB: kernel debugger
+# 兼容initrd
+File systems -&gt; Second extended fs support -&gt; Ext2 extended attributes
+</code></pre></div></div> <h5 id="然后执行make-prepare和make-modules_prepare-理论上只用make-modules_prepare即可-但是没试过">   然后执行<code class="language-plaintext highlighter-rouge">make prepare</code>和<code class="language-plaintext highlighter-rouge">make modules_prepare</code>, 理论上只用<code class="language-plaintext highlighter-rouge">make modules_prepare</code>即可, 但是没试过<br> </h5> <h5 id="然后执行make-modules--jnproc-这一步是主要为了生成modulesymvers-这样才能使用一些内核函数">   然后执行<code class="language-plaintext highlighter-rouge">make modules -j$(nproc)</code>, 这一步是主要为了生成<code class="language-plaintext highlighter-rouge">Module.symvers</code>, 这样才能使用一些内核函数<br> </h5> <h4 id="编译与构建举例"> 编译与构建举例</h4> <h5 id="以下是一个字符型内核模块的示例-模块名为holstein">   以下是一个字符型内核模块的示例, 模块名为holstein<br> </h5> <h5 id="来自httpspawnyablecafelinux-kernel">   来自https://pawnyable.cafe/linux-kernel/<br> </h5> <h5 id="警告-这是一个有严重漏洞的模块-请不要尝试挂载它">   警告: 这是一个有严重漏洞的模块, 请不要尝试挂载它.<br> </h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;linux/cdev.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;linux/fs.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;linux/kernel.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;linux/module.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;linux/slab.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;linux/uaccess.h&gt;</span><span class="cp">
+</span>
+<span class="n">MODULE_LICENSE</span><span class="p">(</span><span class="s">"GPL"</span><span class="p">);</span>
+<span class="n">MODULE_AUTHOR</span><span class="p">(</span><span class="s">"ptr-yudai"</span><span class="p">);</span>
+<span class="n">MODULE_DESCRIPTION</span><span class="p">(</span><span class="s">"Holstein v1 - Vulnerable Kernel Driver for Pawnyable"</span><span class="p">);</span>
+
+<span class="cp">#define DEVICE_NAME "holstein"
+#define BUFFER_SIZE 0x400
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">g_buf</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">module_open</span><span class="p">(</span><span class="k">struct</span> <span class="n">inode</span> <span class="o">*</span><span class="n">inode</span><span class="p">,</span> <span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">file</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"module_open called</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+  <span class="n">g_buf</span> <span class="o">=</span> <span class="n">kmalloc</span><span class="p">(</span><span class="n">BUFFER_SIZE</span><span class="p">,</span> <span class="n">GFP_KERNEL</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">g_buf</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"kmalloc failed"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">ENOMEM</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">ssize_t</span> <span class="nf">module_read</span><span class="p">(</span><span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">count</span><span class="p">,</span>
+                           <span class="n">loff_t</span> <span class="o">*</span><span class="n">f_pos</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">kbuf</span><span class="p">[</span><span class="n">BUFFER_SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+  <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"module_read called</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+  <span class="n">memcpy</span><span class="p">(</span><span class="n">kbuf</span><span class="p">,</span> <span class="n">g_buf</span><span class="p">,</span> <span class="n">BUFFER_SIZE</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">_copy_to_user</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">kbuf</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"copy_to_user failed</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">ssize_t</span> <span class="nf">module_write</span><span class="p">(</span><span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">file</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span>
+                            <span class="kt">size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">loff_t</span> <span class="o">*</span><span class="n">f_pos</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">kbuf</span><span class="p">[</span><span class="n">BUFFER_SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+
+  <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"module_write called</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">_copy_from_user</span><span class="p">(</span><span class="n">kbuf</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"copy_from_user failed</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">memcpy</span><span class="p">(</span><span class="n">g_buf</span><span class="p">,</span> <span class="n">kbuf</span><span class="p">,</span> <span class="n">BUFFER_SIZE</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">module_close</span><span class="p">(</span><span class="k">struct</span> <span class="n">inode</span> <span class="o">*</span><span class="n">inode</span><span class="p">,</span> <span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">file</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">"module_close called</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+  <span class="n">kfree</span><span class="p">(</span><span class="n">g_buf</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="k">struct</span> <span class="n">file_operations</span> <span class="n">module_fops</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">THIS_MODULE</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">read</span> <span class="o">=</span> <span class="n">module_read</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">write</span> <span class="o">=</span> <span class="n">module_write</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">open</span> <span class="o">=</span> <span class="n">module_open</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">release</span> <span class="o">=</span> <span class="n">module_close</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">static</span> <span class="n">dev_t</span> <span class="n">dev_id</span><span class="p">;</span>
+<span class="k">static</span> <span class="k">struct</span> <span class="n">cdev</span> <span class="n">c_dev</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="n">__init</span> <span class="nf">module_initialize</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">alloc_chrdev_region</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dev_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">DEVICE_NAME</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">printk</span><span class="p">(</span><span class="n">KERN_WARNING</span> <span class="s">"Failed to register device</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">EBUSY</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">cdev_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">module_fops</span><span class="p">);</span>
+  <span class="n">c_dev</span><span class="p">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">THIS_MODULE</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">cdev_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">,</span> <span class="n">dev_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">printk</span><span class="p">(</span><span class="n">KERN_WARNING</span> <span class="s">"Failed to add cdev</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">unregister_chrdev_region</span><span class="p">(</span><span class="n">dev_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">EBUSY</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="n">__exit</span> <span class="nf">module_cleanup</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">cdev_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c_dev</span><span class="p">);</span>
+  <span class="n">unregister_chrdev_region</span><span class="p">(</span><span class="n">dev_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">module_init</span><span class="p">(</span><span class="n">module_initialize</span><span class="p">);</span>
+<span class="n">module_exit</span><span class="p">(</span><span class="n">module_cleanup</span><span class="p">);</span>
+</code></pre></div></div> <h5 id="首先-为了简写include-需要配置includepath-具体因ide而异">   首先, 为了简写include, 需要配置includePath, 具体因IDE而异<br> </h5> <h5 id="然后-编写makefile-kernel-module的makefile有特殊语法">   然后, 编写Makefile, kernel Module的Makefile有特殊语法</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BUILD_DIR := build
+obj-m := holstein.o
+KBUILD_DIR := ../_kernel/linux-6.1.129
+CFLAGS_holstein.o := -O0
+
+all:
+	@mkdir -p $(BUILD_DIR)
+	$(MAKE) -C $(KBUILD_DIR) M=$(shell pwd) modules
+	find . -maxdepth 1 -type f ! -name '*.ko' ! -name 'Makefile' ! -name '*.c' ! -name 'build' -exec mv {} build \;
+
+clean:
+	$(MAKE) -C $(KBUILD_DIR) M=$(shell pwd) clean
+
+	rm -rf $(BUILD_DIR)
+</code></pre></div></div> <h5 id="编译完成之后-出现的holsteinko就是编译后的模块">   编译完成之后, 出现的<code class="language-plaintext highlighter-rouge">holstein.ko</code>就是编译后的模块</h5> <h2 id="编译内核">编译内核</h2> <h5 id="在上述源码文件夹中-使用make-menuconfig配置之后-即可开始编译内核">   在上述源码文件夹中, 使用<code class="language-plaintext highlighter-rouge">make menuconfig</code>配置之后, 即可开始编译内核</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make -j$(nproc) bzImage
+</code></pre></div></div> <h5 id="编译完成之后-会通知镜像的路径">   编译完成之后, 会通知镜像的路径</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Kernel: arch/x86/boot/bzImage is ready  (#1)
+</code></pre></div></div> <h2 id="编译busybox">编译busybox</h2> <h5 id="现在还缺少一个initrd-使用busybox获取-通过busybox可以获取一个带文件系统的rootfs">   现在还缺少一个initrd, 使用busybox获取, 通过busybox可以获取一个带文件系统的rootfs<br> </h5> <h5 id="从httpsbusyboxnet-下载busybox源代码或者wget-httpsbusyboxnetdownloadsbusybox-1370tarbz2">   从<code class="language-plaintext highlighter-rouge">https://busybox.net/</code>, 下载busybox源代码或者<code class="language-plaintext highlighter-rouge">wget https://busybox.net/downloads/busybox-1.37.0.tar.bz2</code> </h5> <h5 id="解压并配置">   解压并配置</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tar -vxf busybox-1.37.0.tar.bz2
+cd busybox-1.37.0
+make menuconfig
+</code></pre></div></div> <h5 id="-setttings-选中-build-static-binary-no-shared-libs-使其编译成静态链接的文件-因为bzimage内核本身不提供glibc">    Setttings 选中 Build static binary (no shared libs), 使其编译成静态链接的文件, 因为bzImage内核本身不提供glibc<br> </h5> <h5 id="-然后执行make-install--jnproc-当前文件夹会出现名为_install的文件夹">    然后执行<code class="language-plaintext highlighter-rouge">make install -j$(nproc)</code>, 当前文件夹会出现名为<code class="language-plaintext highlighter-rouge">_install</code>的文件夹<br> </h5> <h5 id="进入文件夹-添加一些东西-并且把编译出的holsteinko放进去">   进入文件夹, 添加一些东西, 并且把编译出的<code class="language-plaintext highlighter-rouge">holstein.ko</code>放进去</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ mkdir -p  proc sys dev etc/init.d
+</code></pre></div></div> <h5 id="在文件夹下新建一个init文件-写入如下内容作为初始化脚本-初始化系统环境-上面的新建文件夹的操作也可以放在这个脚本里">   在文件夹下新建一个<code class="language-plaintext highlighter-rouge">init</code>文件, 写入如下内容作为初始化脚本, 初始化系统环境, 上面的新建文件夹的操作也可以放在这个脚本里</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
+
+echo "INIT SCRIPT"
+mkdir /tmp
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs none /dev
+mount -t debugfs none /sys/kernel/debug
+mount -t tmpfs none /tmp
+echo -e "Boot took $(cut -d' ' -f1 /proc/uptime) seconds"
+insmod holstein.ko
+setsid /bin/cttyhack setuidgid 1000 /bin/sh
+</code></pre></div></div> <h5 id="然后打包">   然后打包</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd _install
+$ find . | cpio -o --format=newc &gt; ../rootfs.cpio
+</code></pre></div></div> <h5 id="获得一个rootfscpio">   获得一个<code class="language-plaintext highlighter-rouge">rootfs.cpio</code> </h5> <h2 id="启动qemu">启动Qemu</h2> <h5 id="在做完了上述工作之后-编写一个用于启动qemu的脚本">   在做完了上述工作之后, 编写一个用于启动Qemu的脚本</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
+
+qemu-system-x86_64 \
+    -m 64M \
+    -nographic \
+    -kernel ./bzImage-6.1 \
+    -append "root=/dev/ram console=ttyS0 loglevel=3 oops=panic panic=1 pti=on nokaslr" \
+    -no-reboot \
+    -cpu kvm64 \
+    -S \
+    -gdb tcp::1234 \
+    -smp cores=2,threads=1 \
+    -monitor /dev/null \
+    -initrd rootfs.cpio \
+    -net nic,model=virtio \
+    -net user \
+    -enable-kvm \
+</code></pre></div></div> <h5 id="看看模块是否挂上了">   看看模块是否挂上了</h5> <p><img src="https://www.helloimg.com/i/2025/02/24/67bc3cd779db2.png" alt="Screenshot 2025-02-24 174107.png"></p> <h5 id="由于权限不够-所以这里显示不了挂载到的地址">   由于权限不够, 所以这里显示不了挂载到的地址<br> </h5> <h2 id="调试">调试</h2> <h5 id="qemu的启动参数加上-append-nokaslr-关闭内核地址随机化-保证地址在每次启动之后保持不变">   <code class="language-plaintext highlighter-rouge">qemu</code>的启动参数加上<code class="language-plaintext highlighter-rouge">-append "nokaslr"</code>, 关闭内核地址随机化, 保证地址在每次启动之后保持不变</h5> <h5 id="在内核源码文件夹下有一个名为vmlinux的文件-是内核的符号表-用的上的用不上的都在里面">   在内核源码文件夹下有一个名为<code class="language-plaintext highlighter-rouge">vmlinux</code>的文件, 是内核的符号表, 用的上的用不上的都在里面.</h5> <h5 id="启动参数中的-gdb-tcp1234-指的是本地的端口12345--s参数会在qemu启动虚拟机后立即将其挂起-方便调试">   启动参数中的<code class="language-plaintext highlighter-rouge">-gdb tcp::1234</code>, 指的是本地的端口12345, <code class="language-plaintext highlighter-rouge">-S</code>参数会在qemu启动虚拟机后立即将其挂起, 方便调试<br> </h5> <h5 id="在另一个窗口中使用-加载符号表-下断点">   在另一个窗口中使用: 加载符号表, 下断点</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gdb -q -ex "target remote localhost:1234" 
+(gdb) set architecture i386:x86-64 # 可选
+(gdb) add-symbol-file vmlinux
+(gdb) 
+(gdb) b start_kernel
+</code></pre></div></div> <h5 id="结果差不多是下面这种">   结果差不多是下面这种</h5> <p><img src="https://www.helloimg.com/i/2025/02/24/67bc4a994eb6c.png" alt="63b68857-6543-4031-b299-d624a29bf77e.png"></p> <h5 id="调试模块">   调试模块:</h5> <h5 id="init脚本改成root用户启动">   <code class="language-plaintext highlighter-rouge">init</code>脚本改成root用户启动</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>setsid /bin/cttyhack setuidgid 0 /bin/sh
+</code></pre></div></div> <h5 id="命令行获取模块加载地址">   命令行获取模块加载地址</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># lsmod
+holstein 16384 0 - Live 0xffffffffc0000000 (O)
+</code></pre></div></div> <h5 id="加载符号表-断点">   加载符号表, 断点</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) add-symbol-file holstein.ko 0xffffffffc0000000
+(gdb) b module_read
+</code></pre></div></div> <p><img src="https://www.helloimg.com/i/2025/02/24/67bc621759279.png" alt="Screenshot 2025-02-24 202026.png"></p> <h5 id="对照一下地址是否一致">   对照一下地址是否一致</h5> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># grep module_read /proc/kallsyms
+</code></pre></div></div> <p><img src="https://www.helloimg.com/i/2025/02/24/67bc625a75b11.png" alt="Screenshot 2025-02-24 202033.png"></p> <h5 id="看起来有点蠢-但是也没找到更好的调试方法了">   看起来有点蠢, 但是也没找到更好的调试方法了<br> </h5> <h5 id="据说gef插件会方便一些">   据说gef插件会方便一些(</h5> </div> </article> <br> <hr> <br> <ul class="list-disc pl-8"></ul> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="https://blog.google/technology/ai/google-gemini-update-flash-ai-assistant-io-2024/" target="_blank" rel="external nofollow noopener">Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra</a> <svg width="1rem" height="1rem" viewbox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"> <path d="M17 13.5v6H5v-12h6m3-3h6v6m0-6-9 9" class="icon_svg-stroke" stroke="#999" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="https://medium.com/@al-folio/displaying-external-posts-on-your-al-folio-blog-b60a1d241a0a?source=rss-17feae71c3c4------2" target="_blank" rel="external nofollow noopener">Displaying External Posts on Your al-folio Blog</a> <svg width="1rem" height="1rem" viewbox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"> <path d="M17 13.5v6H5v-12h6m3-3h6v6m0-6-9 9" class="icon_svg-stroke" stroke="#999" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2025/C++%E6%80%8E%E4%B9%88UAF/">[水贴]C++应该怎么UAF</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2024/largebin-attack-%E4%BB%A5%E5%8F%8A-IO%E6%B5%81%E7%9A%84%E5%88%A9%E7%94%A8(%E4%B8%80)/">large bin attack及house of cat</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2024/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%A6%BB%E8%B0%B1%E7%9A%84%E6%8A%A5%E9%94%99/">[水贴]记一次离谱报错</a> </li> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2025 Leak Box 258. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank" rel="external nofollow noopener">Unsplash</a>. </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?a0db7e5d5c70cc3252b3138b0c91dcaf" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/js/zoom.js?85ddb88934d28b74e78031fd54cf8308"></script> <script src="/assets/js/no_defer.js?2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?e0514a05c5c95ac1a93a8dfd5249b92e"></script> <script defer src="/assets/js/copy_code.js?c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?a5bb4e6a542c546dd929b24b8b236dfd"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script defer src="/assets/js/progress-bar.js?2f30e0e6801ea8f5036fa66e1ab0a71a" type="text/javascript"></script> <script src="/assets/js/vanilla-back-to-top.min.js?f40d453793ff4f64e238e420181a1d17"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/assets/js/search/ninja-keys.min.js?a3446f084dcaecc5f75aa1757d087dcf"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/assets/js/search-setup.js?6c304f7b1992d4b60f7a07956e52f04a"></script> <script src="/assets/js/search-data.js"></script> <script src="/assets/js/shortcut-key.js?6f508d74becd347268a7f822bca7309d"></script> </body> </html>
