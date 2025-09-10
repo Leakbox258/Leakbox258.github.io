@@ -6,7 +6,7 @@ subtitle: <a href='https://www.uestc.edu.cn/'>uestc</a>. ChengDu. QQ:3033680748.
 
 profile:
   align: right
-  image: tian_suo_hao_er.jpg
+  image: tian_suo_hao_er.png
   image_circular: true # crops the image to make it circular
   more_info: >
     <p>ChengDu, SiChuan Province</p>
@@ -31,9 +31,9 @@ Researching Interests: Traditional and Ai Compilers, Programming Language, Opera
 
 Linux Distribution: Fedora 42, Ubuntu 24.04 (on wsl2)
 
-Programming Languages: C/C++, Rust, Python, CUDA, GNU Assembly
+Programming Languages: C/C++, Rust, Python, CUDA, GNU Assembly (partially x86-64, ARMv7/ARMv8, RISC-V)
 
-Toolkits: Git, VsCode, CMake, Docker, Markdown
+Toolkits: Git, VsCode, CMake, Docker, Markdown, GDB, LaTeX
 
 FrameWorks Working With: LLVM, MLIR, ONNX, Torch, Jax
 
