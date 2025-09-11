@@ -44,7 +44,18 @@ ninja.data = [{
               handler: () => {
                 window.location.href = "/blog/";
               },
-            },{id: "post-内核模块开发环境及调试",
+            },{id: "post-onnx-opt-day0",
+        
+          title: "ONNX-opt day0",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/ONNX/";
+          
+        },
+      },{id: "post-内核模块开发环境及调试",
         
           title: "内核模块开发环境及调试",
         
