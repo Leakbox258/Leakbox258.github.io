@@ -1,0 +1,146 @@
+<!DOCTYPE html> <html lang="cn"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> ONNX-opt 0 | Leak Box 258 </title> <meta name="author" content="Leak Box 258"> <meta name="description" content="A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design. "> <meta name="keywords" content="PL, Rust, C++, Linux"> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%99%BF%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://leakbox258.github.io/blog/2025/ONNX-0/"> <script src="/assets/js/theme.js?a81d82887dd692e91686b43de4542f18"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> <span class="font-weight-bold">Leak</span> Box 258 </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">about </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">blog </a> </li> <li class="nav-item "> <a class="nav-link" href="/repositories/">repositories </a> </li> <li class="nav-item "> <a class="nav-link" href="/books/">bookshelf </a> </li> <li class="nav-item dropdown "> <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">submenus </a> <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> <a class="dropdown-item " href="/books/">bookshelf</a> <div class="dropdown-divider"></div> <a class="dropdown-item " href="/blog/">blog</a> </div> </li> <li class="nav-item"> <button id="search-toggle" title="Search" onclick="openSearchModal()"> <span class="nav-link">ctrl k <i class="ti ti-search"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="ti ti-sun-moon" id="light-toggle-system"></i> <i class="ti ti-moon-filled" id="light-toggle-dark"></i> <i class="ti ti-sun-filled" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">ONNX-opt 0</h1> <p class="post-meta"> Created on September 11, 2025 by 久菜合子 </p> <p class="post-tags"> <a href="/blog/2025"> <i class="fa-solid fa-calendar fa-sm"></i> 2025 </a>   ·   <a href="/blog/tag/dev"> <i class="fa-solid fa-hashtag fa-sm"></i> dev</a>   <a href="/blog/tag/nn"> <i class="fa-solid fa-hashtag fa-sm"></i> nn</a>   <a href="/blog/tag/onnx"> <i class="fa-solid fa-hashtag fa-sm"></i> onnx</a>   <a href="/blog/tag/ai-compiler"> <i class="fa-solid fa-hashtag fa-sm"></i> ai-compiler</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <p>今天是人类目前最大的湿件制导导弹命中目标的24(man!)周年</p> <h5 id="onnx-简介">ONNX 简介</h5> <p>ONNX 是一个开放的深度学习框架中立的表示格式，旨在促进不同深度学习工具之间的互操作性。通过 ONNX，开发者可以在不同的深度学习框架之间轻松地转换模型，从而实现更高效的模型部署和推理。<br><br> ONNX 和 ONNX-runtime 是两个重要的组成部分，前者是模型计算图和权重的中间表示，后者是一个推理引擎，如下图。<br><br></p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/ONNX_opt-0-480.webp 480w,/assets/img/ONNX_opt-0-800.webp 800w,/assets/img/ONNX_opt-0-1400.webp 1400w," type="image/webp" sizes="95vw"></source> <img src="/assets/img/ONNX_opt-0.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" data-zoomable="" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"> </picture> </figure> <p>所以 ONNX 主要用于 AI 模型的交换和部署：</p> <ul> <li>交换：对不同训练框架导出模型文件和权重文件进行转换</li> <li>部署：将模型文件和权重文件交给推理引擎进行运算</li> </ul> <p>上图中的三段式和传统编译器的结构不谋而和，ONNX 虽然并不存在计算图或者算子上的简化，但是其中的一些结构对于模型的抽象使得优化其实不是完全不可能（进入编译器舒适区间了）<br><br> 比如，现在已有的 <a href="https://github.com/daquexian/onnx-simplifier?tab=readme-ov-file" rel="external nofollow noopener" target="_blank">ONNX-simplifier</a>（虽然不是很流行），根据其描述是进行计算图上的常量折叠，以及他的third-part依赖<a href="https://github.com/onnx/optimizer" rel="external nofollow noopener" target="_blank">ONNX-optimizer</a><br><br> 相较于如何优化这方面，也很重要的方面是如何对 Pass 后的结果进行验证，下面是一些主流的 AI 编译器的测试方法（gen by Gemini）</p> <table> <thead> <tr> <th>框架/标准</th> <th>主要验证策略</th> <th>核心工具/方法</th> </tr> </thead> <tbody> <tr> <td>ONNX</td> <td>结构合法性验证、数值一致性对比</td> <td>onnx.checker、ONNX Runtime（对比不同优化级别/后端）、模型库测试</td> </tr> <tr> <td>MLIR</td> <td>逐层方言规约验证、Pass正确性断言</td> <td>Dialect Verifier、mlir-opt + FileCheck、端到端数值对比</td> </tr> <tr> <td>TVM</td> <td>端到端数值对比、中间层IR对比、底层代码单元测试</td> <td>Relay解释器（对比优化前后）、与NumPy对比、端到端与原始框架对比</td> </tr> <tr> <td>Triton</td> <td>与参考实现的数值一致性对比、梯度检查</td> <td>与PyTorch Eager实现的输出对比、torch.autograd.gradcheck进行梯度验证</td> </tr> </tbody> </table> <p>相比之下，ONNX 有一些优势，提供了足够的<code class="language-plaintext highlighter-rouge">语法与结构规约验证(Syntactic and Structural Verification)</code>的 Python API，不必一定要进行<code class="language-plaintext highlighter-rouge">数值一致性对比 (Numerical Consistency Check)</code>, 虽然后者可以通过 ONNX Runtime 来实现<br><br> 不过<code class="language-plaintext highlighter-rouge">数值一致性对比</code>还是很有必要的，但是对规模比较大的测例而言，算力也是一个问题<br><br> ONNX 的另一个优点在于，它不像是 TVM 进行端到端的训练和部署，所以研究性的工作可能会比轻松<br><br></p> <h5 id="onnx-环境配置">ONNX 环境配置</h5> <p>由于是进行研究，所以需要一套源代码 <a href="https://github.com/onnx/onnx/releases/tag/v1.19.0" rel="external nofollow noopener" target="_blank">ONNX 1.19.0 release</a> <br><br> 再次之前，墙裂建议使用<code class="language-plaintext highlighter-rouge">conda</code>等工具进行环境隔离<br><br> 在编译之前，需要安装<code class="language-plaintext highlighter-rouge">protobuf</code>，以下是源代码编译安装</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  git clone https://github.com/protocolbuffers/protobuf.git
+  <span class="nb">cd </span>protobuf
+  git checkout v5.29.2
+  git submodule update <span class="nt">--init</span> <span class="nt">--recursive</span>
+  <span class="nb">mkdir </span>build_source <span class="o">&amp;&amp;</span> <span class="nb">cd </span>build_source
+  cmake <span class="nt">-Dprotobuf_BUILD_SHARED_LIBS</span><span class="o">=</span>OFF <span class="nt">-DCMAKE_INSTALL_PREFIX</span><span class="o">=</span>/usr <span class="nt">-Dprotobuf_BUILD_TESTS</span><span class="o">=</span>OFF <span class="nt">-DCMAKE_BUILD_TYPE</span><span class="o">=</span>Release <span class="nt">-DCMAKE_POSITION_INDEPENDENT_CODE</span><span class="o">=</span>ON ..
+  cmake <span class="nt">--build</span> <span class="nb">.</span> <span class="nt">--target</span> <span class="nb">install</span>
+</code></pre></div></div> <p><code class="language-plaintext highlighter-rouge">protobuf</code>是一个关键的序列化工具，之后的源代码中的部分<code class="language-plaintext highlighter-rouge">.cc</code>和<code class="language-plaintext highlighter-rouge">.h</code>文件是由其生成的 然后在主文件夹下使用<code class="language-plaintext highlighter-rouge">pip install -e . -v</code>就能编译安装，python 包管理器会将 onnx 关联到当前路径<br><br> 不过，毕竟需要看代码，所以<code class="language-plaintext highlighter-rouge">cmake</code>相关的需要进行一点变动：</p> <ul> <li>在<code class="language-plaintext highlighter-rouge">CMakeLists.txt</code>中，加入一行<code class="language-plaintext highlighter-rouge">set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE) </code>, 以便生成<code class="language-plaintext highlighter-rouge">compile_commands.json</code>, 让clangd作为看c++时的lsp</li> <li>使用 <code class="language-plaintext highlighter-rouge">cmake -DENABLE_FASTER_BUILD=OFF .</code>, 如果开启快速编译，某些由<code class="language-plaintext highlighter-rouge">protobuf</code>生成的文件可能不会保存</li> </ul> <p>在生成的<code class="language-plaintext highlighter-rouge">onnx-ml.pb.h</code>中，lsp可能无法解析符号<code class="language-plaintext highlighter-rouge">PROTOBUF_NODISCARD</code>, <a href="https://github.com/protocolbuffers/protobuf/commit/1ceedf88ca4c6f151f08a10244005cee6c814f40" rel="external nofollow noopener" target="_blank">根据这个commit</a>，应该可以将其替换为编译器自带的<code class="language-plaintext highlighter-rouge">[[nodiscard]]</code><br><br> <code class="language-plaintext highlighter-rouge">onnx-ml.pb.h</code>会校验c++版本，由于只是需要其提供定义和符号，所以也将其注释<br><br></p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#if PROTOBUF_VERSION != 5029002
+#error "Protobuf C++ gencode is built with an incompatible version of"
+#error "Protobuf C++ headers/runtime. See"
+#error "https://protobuf.dev/support/cross-version-runtime-guarantee/#cpp"
+</span><span class="p">...</span>
+<span class="p">...</span>
+<span class="cp">#endif // ps: 这个endif在文件末尾
+</span></code></pre></div></div> <p>最后, 为了进行数据一致性检验，可能需要下一个onnx runtime<br><br></p> <h5 id="onnx项目组成">ONNX项目组成</h5> <p>由于国内（其实也包括国外），ONNX 的资料不算很多，近年来有些式微，很多训练框架并不愿意全盘兼容ONNX，导致ONNX主打的框架迁移用处不大，然后 ONNX-runtime也不算特别出色。<br><br> 项目树（仅文件夹）:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>tree onnx <span class="nt">-d</span>
+├── bin
+├── common
+├── defs
+│   ├── controlflow
+│   ├── generator
+│   ├── image
+│   ├── logical
+│   ├── math
+│   ├── nn
+│   ├── object_detection
+│   ├── optional
+│   ├── __pycache__
+│   ├── quantization
+│   ├── reduction
+│   ├── rnn
+│   ├── sequence
+│   ├── tensor
+│   ├── text
+│   ├── traditionalml
+│   └── training
+├── frontend
+├── inliner
+├── onnx_cpp2py_export
+├── reference
+</code></pre></div></div> <p>带<code class="language-plaintext highlighter-rouge">.pb</code>的是由<code class="language-plaintext highlighter-rouge">protobuf</code>导出的c++文件，带<code class="language-plaintext highlighter-rouge">_pb</code>的是导出的python文件</p> <ul> <li> <code class="language-plaintext highlighter-rouge">bin</code>: 存放了一个<code class="language-plaintext highlighter-rouge">checker.py</code>, 方便导出</li> <li> <code class="language-plaintext highlighter-rouge">common</code>: c++ 编写的实用程序，如 assert，file，path，platform等, 其中有不少的是<code class="language-plaintext highlighter-rouge">Highly Experimental</code>的</li> <li> <code class="language-plaintext highlighter-rouge">defs</code>: 存放 ONNX 对于模型各个部件的定义，说实话从技术的角度上没什么好看的</li> <li> <code class="language-plaintext highlighter-rouge">frontend</code>: 似乎是空的</li> <li> <code class="language-plaintext highlighter-rouge">onnx_cpp2py_export</code> 以及 <code class="language-plaintext highlighter-rouge">onnx_cpp2py_export...so</code>: cpp 和 py 之间进行接口交换</li> <li> <code class="language-plaintext highlighter-rouge">reference</code>: 定义了大量的算子，绝大多数是用<code class="language-plaintext highlighter-rouge">numpy</code>实现的</li> </ul> <h5 id="onnx-optimizer">ONNX-optimizer</h5> <p>ONNX-optimizer 以 ONNX 作为依赖，配置基本如上所示, 显然更有研究的价值，虽然它的star量大概是其他 AI 编译器的百分之一，贡献者也只有几十人<br><br> ONNX-optimizer 使用 ONNX 作为 third-part, 也就是应该首先按照上述方法构建ONNX的环境，否则lsp应该是没法使用的.<br><br> 首先是文件树：</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>onnx-optimizer
+├── c_api
+│   ├── onnxoptimizer_c_api.cc
+│   └── onnxoptimizer_c_api.h
+├── cpp2py_export.cc
+├── __init__.py
+├── __main__.py
+├── model_util.cc
+├── model_util.h
+├── onnxoptimizer_main.py
+├── optimize.cc
+├── optimize.h
+├── pass.cc
+├── passes
+│   ├── adjust_add.h
+│   ├── adjust_slice_and_matmul.h
+│   ├── bitscast.h
+│   ├── cse_util.h
+│   ├── data_type.h
+│   ├── eliminate_common_subexpression.h
+│   ├── eliminate_consecutive_idempotent_ops.h
+│   ├── eliminate_deadend.h
+│   ├── eliminate_duplicate_initializer.h
+│   ├── eliminate_identity.h
+│   ├── eliminate_if_with_const_cond.h
+│   ├── eliminate_nop_cast.h
+│   ├── eliminate_nop_concat.h
+│   ├── eliminate_nop_dropout.h
+│   ├── eliminate_nop_expand.h
+│   ├── eliminate_nop_flatten.h
+│   ├── eliminate_nop_monotone_argmax.h
+│   ├── eliminate_nop_pad.h
+│   ├── eliminate_nop_reshape.h
+│   ├── eliminate_nop_split.h
+│   ├── eliminate_nop_transpose.h
+│   ├── eliminate_nop_with_unit.h
+│   ├── eliminate_shape_gather.h
+│   ├── eliminate_shape_op.h
+│   ├── eliminate_slice_after_shape.h
+│   ├── eliminate_unused_initializer.h
+│   ├── extract_constant_to_initializer.h
+│   ├── fuse_add_bias_into_conv.h
+│   ├── fuse_bn_into_conv.h
+│   ├── fuse_concat_into_reshape.h
+│   ├── fuse_consecutive_concats.h
+│   ├── fuse_consecutive_log_softmax.h
+│   ├── fuse_consecutive_reduce_unsqueeze.h
+│   ├── fuse_consecutive_slices.h
+│   ├── fuse_consecutive_squeezes.h
+│   ├── fuse_consecutive_transposes.h
+│   ├── fuse_consecutive_unsqueezes.h
+│   ├── fuse_matmul_add_bias_into_gemm.h
+│   ├── fuse_pad_into_conv.h
+│   ├── fuse_pad_into_pool.h
+│   ├── fuse_qkv.h
+│   ├── fuse_transpose_into_gemm.h
+│   ├── lift_lexical_references.h
+│   ├── logging.h
+│   ├── nop.h
+│   ├── pass_util.cc
+│   ├── pass_util.h
+│   ├── rename_input_output.h
+│   ├── replace_einsum_with_matmul.h
+│   ├── rewrite_input_dtype.h
+│   ├── set_unique_name_for_nodes.h
+│   ├── split.h
+│   ├── string_utils.h
+│   ├── tensor_util.cc
+│   └── tensor_util.h
+├── pass.h
+├── pass_manager.cc
+├── pass_manager.h
+├── pass_registry.cc
+├── pass_registry.h
+└── <span class="nb">test</span>
+    └── optimizer_test.py
+</code></pre></div></div> <p>可以看出项目比较紧凑（小） 了解构建模式之前，可以先看看给出的使用示例</p> <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// onnx_optimizer_exec.cpp</span>
+
+<span class="cm">/*
+ * SPDX-License-Identifier: Apache-2.0
+ */</span>
+<span class="p">...</span>
+
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="n">ONNX_NAMESPACE</span><span class="o">::</span><span class="n">ModelProto</span> <span class="n">model</span><span class="p">;</span>
+    <span class="n">onnx</span><span class="o">::</span><span class="n">optimization</span><span class="o">::</span><span class="n">loadModel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">model</span><span class="p">,</span> <span class="n">model_in_path</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+    <span class="n">onnx</span><span class="o">::</span><span class="n">checker</span><span class="o">::</span><span class="n">check_model</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">new_model</span> <span class="o">=</span> <span class="n">onnx</span><span class="o">::</span><span class="n">optimization</span><span class="o">::</span><span class="n">Optimize</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">onnx</span><span class="o">::</span><span class="n">optimization</span><span class="o">::</span><span class="n">GetFuseAndEliminationPass</span><span class="p">());</span>
+    <span class="n">onnx</span><span class="o">::</span><span class="n">checker</span><span class="o">::</span><span class="n">check_model</span><span class="p">(</span><span class="n">new_model</span><span class="p">);</span>
+    <span class="kt">bool</span> <span class="n">save_external_data</span> <span class="o">=</span> <span class="o">!</span><span class="n">model_data_path</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+    <span class="n">onnx</span><span class="o">::</span><span class="n">optimization</span><span class="o">::</span><span class="n">saveModel</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_model</span><span class="p">,</span> <span class="n">model_out_path</span><span class="p">,</span>
+                                  <span class="n">save_external_data</span><span class="p">,</span> <span class="n">model_data_path</span><span class="p">);</span>
+
+  <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="p">...</span>
+
+</code></pre></div></div> <ul> <li> <code class="language-plaintext highlighter-rouge">ModelProto</code>: 继承于<code class="language-plaintext highlighter-rouge">::google::protobuf::Message</code>, 用于模型的存储，修改以及基于<code class="language-plaintext highlighter-rouge">protobuf</code>进行序列化, 由ONNX提供</li> <li> <code class="language-plaintext highlighter-rouge">loadModel</code>: ONNX-opt提供，当true时，在模型文件同文件夹下寻找并加载额外文件（权重），并调用<code class="language-plaintext highlighter-rouge">loadExternalDataForTensor</code>，转化为tensor形式</li> <li> <code class="language-plaintext highlighter-rouge">check_model</code>：按照ONNX标准进行检查</li> <li> <code class="language-plaintext highlighter-rouge">saveModel</code>: 保存模型和权重</li> <li> <code class="language-plaintext highlighter-rouge">onnx::optimization::Optimize/OptimizeFixed</code>: 优化过程分为常规优化和不动点优化，这两个接口将会被导出到python（需安装pybind11）</li> </ul> </div> </article> <br> <hr> <br> <ul class="list-disc pl-8"></ul> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="https://blog.google/technology/ai/google-gemini-update-flash-ai-assistant-io-2024/" target="_blank" rel="external nofollow noopener">Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra</a> <svg width="1rem" height="1rem" viewbox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"> <path d="M17 13.5v6H5v-12h6m3-3h6v6m0-6-9 9" class="icon_svg-stroke" stroke="#999" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="https://medium.com/@al-folio/displaying-external-posts-on-your-al-folio-blog-b60a1d241a0a?source=rss-17feae71c3c4------2" target="_blank" rel="external nofollow noopener">Displaying External Posts on Your al-folio Blog</a> <svg width="1rem" height="1rem" viewbox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"> <path d="M17 13.5v6H5v-12h6m3-3h6v6m0-6-9 9" class="icon_svg-stroke" stroke="#999" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path> </svg> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2025/ONNX-1/">ONNX-opt 1</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2025/%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E5%8F%8A%E8%B0%83%E8%AF%95/">内核模块开发环境及调试</a> </li> <li class="my-2"> <a class="text-pink-700 underline font-semibold hover:text-pink-800" href="/blog/2025/C++%E6%80%8E%E4%B9%88UAF/">[水贴]C++应该怎么UAF</a> </li> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2025 Leak Box 258. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. Photos from <a href="https://unsplash.com" target="_blank" rel="external nofollow noopener">Unsplash</a>. </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?a0db7e5d5c70cc3252b3138b0c91dcaf" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/js/zoom.js?85ddb88934d28b74e78031fd54cf8308"></script> <script src="/assets/js/no_defer.js?2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?e0514a05c5c95ac1a93a8dfd5249b92e"></script> <script defer src="/assets/js/copy_code.js?c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?a5bb4e6a542c546dd929b24b8b236dfd"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script defer src="/assets/js/progress-bar.js?2f30e0e6801ea8f5036fa66e1ab0a71a" type="text/javascript"></script> <script src="/assets/js/vanilla-back-to-top.min.js?f40d453793ff4f64e238e420181a1d17"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/assets/js/search/ninja-keys.min.js?a3446f084dcaecc5f75aa1757d087dcf"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/assets/js/search-setup.js?6c304f7b1992d4b60f7a07956e52f04a"></script> <script src="/assets/js/search-data.js"></script> <script src="/assets/js/shortcut-key.js?6f508d74becd347268a7f822bca7309d"></script> </body> </html>

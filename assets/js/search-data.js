@@ -44,15 +44,26 @@ ninja.data = [{
               handler: () => {
                 window.location.href = "/blog/";
               },
-            },{id: "post-onnx-opt-day0",
+            },{id: "post-onnx-opt-1",
         
-          title: "ONNX-opt day0",
+          title: "ONNX-opt 1",
         
         description: "",
         section: "Posts",
         handler: () => {
           
-            window.location.href = "/blog/2025/ONNX/";
+            window.location.href = "/blog/2025/ONNX-1/";
+          
+        },
+      },{id: "post-onnx-opt-0",
+        
+          title: "ONNX-opt 0",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/ONNX-0/";
           
         },
       },{id: "post-内核模块开发环境及调试",
