@@ -1,14 +1,10 @@
 github_users:
-  - torvalds
-  - alshedivat
+  - Leakbox258
 
 repo_description_lines_max: 2
 
 github_repos:
-  - alshedivat/al-folio
-  - jekyll/jekyll
-  - twbs/bootstrap
-  - jquery/jquery
-  - FortAwesome/Font-Awesome
-  - mathjax/MathJax
-  - jpswalsh/academicons
+  - 0x676e616c63/gnalc
+  - Leakbox258/etoy-mlir
+  - Leakbox258/RVAssembler
+  - Leakbox258/OpenWrt-flowtraffic
