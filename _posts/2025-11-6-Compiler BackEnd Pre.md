@@ -4,7 +4,7 @@ title: "Compiler BackEnd Pre"
 date:   2025-11-6
 tags: [compiler, processor]
 comments: true
-thumbnail: assets/img/com_pre_ppt/Slide*.jpg
+thumbnail: assets/img/com_pre_ppt/Slide1.jpg
 author: 久菜合子
 ---
 
@@ -31,3 +31,9 @@ author: 久菜合子
 {% include figure.liquid path="assets/img/com_pre_ppt/Slide21.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
 {% include figure.liquid path="assets/img/com_pre_ppt/Slide22.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
 {% include figure.liquid path="assets/img/com_pre_ppt/Slide23.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+{% include figure.liquid path="assets/img/com_pre_ppt/Slide24.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+{% include figure.liquid path="assets/img/com_pre_ppt/Slide25.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+{% include figure.liquid path="assets/img/com_pre_ppt/Slide26.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+{% include figure.liquid path="assets/img/com_pre_ppt/Slide27.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+{% include figure.liquid path="assets/img/com_pre_ppt/Slide28.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
+{% include figure.liquid path="assets/img/com_pre_ppt/Slide29.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}
