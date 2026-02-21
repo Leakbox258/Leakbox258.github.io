@@ -27,14 +27,12 @@ latest_posts:
 
 A student of University of Electronic Science and Technology of China. Major in Software Engineering.
 
-Researching Interests: Traditional and Ai Compilers, Programming Language.
+Researching Interests: Traditional Compilers, Programming Language, Static Analysis and IC.
 
-Linux Distribution: Fedora 42, Ubuntu 24.04 (on wsl2)
+Linux Distribution: Fedora 43
 
-Programming Languages: C/C++, Rust, Python, GNU Assembly (partially x86-64, ARMv7/ARMv8, RISC-V)
+Programming Languages: C/C++, Java, Rust, Python, mutilple Assemblys (partially x86-64, ARMv7/ARMv8, RISC-V)
 
-Toolkits: Git, VsCode, CMake, Docker, Markdown, GDB, LaTeX
-
-FrameWorks Working With: LLVM, MLIR, ONNX, Jax(trying)
+Familiar With: Git, VsCode, CMake, Docker, Markdown, GDB, LaTeX, Maven
 
 If you want contact me, please contact me by QQ: 3033680748
