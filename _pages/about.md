@@ -26,13 +26,3 @@ latest_posts:
 ---
 
 A student of University of Electronic Science and Technology of China. Major in Software Engineering.
-
-Researching Interests: Traditional Compilers, Programming Language, Static Analysis and IC.
-
-Linux Distribution: Fedora 43
-
-Programming Languages: C/C++, Java, Rust, Python, mutilple Assemblys (partially x86-64, ARMv7/ARMv8, RISC-V)
-
-Familiar With: Git, VsCode, CMake, Docker, Markdown, GDB, LaTeX, Maven
-
-If you want contact me, please contact me by QQ: 3033680748
