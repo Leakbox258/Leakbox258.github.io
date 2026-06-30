@@ -1,13 +1,13 @@
 ---
 layout: book-shelf
-title: bookshelf
-permalink: /books/
+title: game
+permalink: /game/
 nav: true
 nav_order: 3
-collection: books
+collection: games
 ---
 
-> Books are books
+> 没有时间娱乐的人迟早有时间生病。
 >
 
-## Books that I am reading, have read, or will read
+## Video Games
