@@ -25,4 +25,4 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-    A student of University of Electronic Science and Technology of China. Major in Software Engineering.
+&emsp;&emsp;&emsp;&emsp;A student of University of Electronic Science and Technology of China. Major in Software Engineering.

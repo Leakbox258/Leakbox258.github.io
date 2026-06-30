@@ -1,7 +1,7 @@
 ---
 layout: book-shelf
 title: game
-permalink: /game/
+permalink: /games/
 nav: true
 nav_order: 3
 collection: games
