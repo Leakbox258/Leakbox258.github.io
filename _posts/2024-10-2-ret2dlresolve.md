@@ -4,7 +4,7 @@ title: "glibc动态链接重定位 + CNSS2024 pwn boss wp"
 date:   2024-10-2
 tags: [CTF, pwn]
 comments: true
-author: 久菜合子
+author: leakbox
 ---
 
 

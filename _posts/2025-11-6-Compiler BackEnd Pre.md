@@ -5,7 +5,7 @@ date:   2025-11-6
 tags: [compiler, processor]
 comments: true
 thumbnail: assets/img/com_pre_ppt/Slide1.jpg
-author: 久菜合子
+author: leakbox
 ---
 
 {% include figure.liquid path="assets/img/com_pre_ppt/Slide1.jpg" class="img-fluid rounded z-depth-1" zoomable=true %}

@@ -4,7 +4,7 @@ title: "large bin attack及house of cat"
 date:   2024-12-12
 tags: [pwn, CTF]
 comments: true
-author: 久菜合子
+author: leakbox
 ---
 
 &emsp;~~好不容易学点东西赶紧记下来, 不然过几天又忘记了~~
