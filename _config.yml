@@ -144,6 +144,8 @@ newsletter:
 collections:
   books:
     output: false
+  games:
+    output: false
   news:
     defaults:
       layout: post
