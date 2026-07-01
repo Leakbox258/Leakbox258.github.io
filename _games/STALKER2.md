@@ -3,6 +3,7 @@ layout: book-review
 title: S.T.A.L.K.E.R. 2: Heart of Chornobyl
 author: GSC Game World
 cover: assets/img/game_covers/STALKER2.png
+categories: FPS RPG
 released: 2024
 ---
 

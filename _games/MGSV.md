@@ -3,6 +3,7 @@ layout: book-review
 title: Metal Gear Solid V: The Phantom Pain
 author: Konami
 cover: assets/img/game_covers/MGSV.png
+categories: Stealth Third-Person 
 released: 2015
 ---
 

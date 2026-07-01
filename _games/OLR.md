@@ -3,6 +3,7 @@ layout: book-review
 title: S.T.A.L.K.E.R Oblivion Lost Remake
 author: GSC Game World & hi_flyer
 cover: assets/img/game_covers/OLR.png
+categories: FPS RPG
 released: 2003
 ---
 
