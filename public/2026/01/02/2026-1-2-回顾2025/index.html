@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>2025回顾 | Leakbox's Site</title><meta name="author" content="Leakbox"><meta name="copyright" content="Leakbox"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="上课&emsp;&emsp;喜欢一周上8节操作系统吗？可太有操作了 ：）&emsp;&emsp;喜欢一学期上3门思政吗？他的出身啊，红得发紫！ 做实验尼卓计网实验—OpenWrt&emsp;&emsp;尼软2023级开始有新的实验，使用OpenWrt框架检测流量。&emsp;&emsp;在普通班基础上，增加烧录至路由器实机作为必做内容，实际上却是降低难度，因为直接插线就有ssh用，可以不用折腾VM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2025回顾">
+<meta property="og:url" content="https://leakbox258.github.io/2026/01/02/2026-1-2-%E5%9B%9E%E9%A1%BE2025/index.html">
+<meta property="og:site_name" content="Leakbox&#39;s Site">
+<meta property="og:description" content="上课&emsp;&emsp;喜欢一周上8节操作系统吗？可太有操作了 ：）&emsp;&emsp;喜欢一学期上3门思政吗？他的出身啊，红得发紫！ 做实验尼卓计网实验—OpenWrt&emsp;&emsp;尼软2023级开始有新的实验，使用OpenWrt框架检测流量。&emsp;&emsp;在普通班基础上，增加烧录至路由器实机作为必做内容，实际上却是降低难度，因为直接插线就有ssh用，可以不用折腾VM">
+<meta property="og:locale">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/149575179?s=40&v=4">
+<meta property="article:published_time" content="2026-01-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-14T02:54:16.146Z">
+<meta property="article:author" content="Leakbox">
+<meta property="article:tag" content="none">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/149575179?s=40&v=4"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "2025回顾",
+  "url": "https://leakbox258.github.io/2026/01/02/2026-1-2-%E5%9B%9E%E9%A1%BE2025/",
+  "image": "https://avatars.githubusercontent.com/u/149575179?s=40&v=4",
+  "datePublished": "2026-01-01T16:00:00.000Z",
+  "dateModified": "2026-07-14T02:54:16.146Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Leakbox",
+      "url": "https://leakbox258.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://leakbox258.github.io/2026/01/02/2026-1-2-%E5%9B%9E%E9%A1%BE2025/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.5"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":350,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: 'Load More'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '2025回顾',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/./assets/img/sites/CIV6.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://avatars.githubusercontent.com/u/149575179?s=40&amp;v=4" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> TimeLine</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Links</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg fixed" id="page-header" style="background-image: url(/./assets/img/sites/CIV6.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="https://avatars.githubusercontent.com/u/149575179?s=40&amp;v=4" alt="Logo"><span class="site-name">Leakbox's Site</span></a><a class="nav-page-title" href="/"><span class="site-name">2025回顾</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  Back to Home</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> TimeLine</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Links</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">2025回顾</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2026-01-01T16:00:00.000Z" title="Created 2026-01-02 00:00:00">2026-01-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2026-07-14T02:54:16.146Z" title="Updated 2026-07-14 10:54:16">2026-07-14</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h3 id="上课"><a href="#上课" class="headerlink" title="上课"></a><strong>上课</strong></h3><p>&emsp;&emsp;喜欢一周上8节<strong>操作</strong>系统吗？可太有<strong>操作</strong>了 ：）<br><br><img src="/../assets/img/2025/0.png"><br>&emsp;&emsp;喜欢一学期上3门思政吗？他的出身啊，红得发紫！<br><br><img src="/../assets/img/2025/1.png"></p>
+<h3 id="做实验"><a href="#做实验" class="headerlink" title="做实验"></a><strong>做实验</strong></h3><h5 id="尼卓计网实验—OpenWrt"><a href="#尼卓计网实验—OpenWrt" class="headerlink" title="尼卓计网实验—OpenWrt"></a>尼卓计网实验—OpenWrt</h5><p>&emsp;&emsp;尼软2023级开始有新的实验，使用OpenWrt框架检测流量。<br>&emsp;&emsp;在普通班基础上，增加烧录至路由器实机作为必做内容，实际上却是降低难度，因为直接插线就有ssh用，可以不用折腾VMware。<br><br><img src="/../assets/img/2025/2.png"><br>&emsp;&emsp;只写了CLI界面，所以附一张逼格波斯的帅脸。<br></p>
+<h5 id="尼卓的OS实验"><a href="#尼卓的OS实验" class="headerlink" title="尼卓的OS实验"></a>尼卓的OS实验</h5><p>&emsp;&emsp;一共10个实验，牛🐮大了<br><br>&emsp;&emsp;这10个魔丸分别是</p>
+<ul>
+<li>哲学家吃饭 （用pthread，信号量，共享内存，消息队列分别实现）</li>
+<li>生产者消费者 （同上）</li>
+<li>写一个<code>ls</code></li>
+<li>写一个<code>cp</code></li>
+<li>做一个能并发的 Linux WebServer（ ？）</li>
+<li>写一个 Char 设备</li>
+<li>写 V4L2 设备驱动，并用电脑前置摄像头拍下帅照一张（我最后用ffmpeg转出的，但是照片搞丢了）</li>
+<li>配置 Keil5 工程</li>
+<li>在开发板上跑 uC&#x2F;OS（忘记是2还是3了）</li>
+<li>改良 uC&#x2F;OS 的调度算法</li>
+</ul>
+<p>&emsp;&emsp;可以很清楚地看到前面4个实验和后面6个根本不是一个画风的，之后采访其他方向的同学，了解到尼卓的实验大纲很有可能超级拼装来的，前4个是普通班实验，后面的不知道哪弄过来的。<br><br><br>&emsp;&emsp;说实话后面三个都是水过去的，因为给的开发资料牛头不对马嘴，线也少给一根，当然更主要的是我根本不会嵌入式<br><br><br>&emsp;&emsp;该课的期末考试最后一题是手写一个Linux内核态模块，实现<code>ls</code>的功能，并能用<code>dmesg</code>查看，但是也没说到底写到什么程度（一切尽在不言之中）</p>
+<p><img src="/../assets/img/2025/3.jpg"></p>
+<p>&emsp;&emsp;没发图中红框的这根线，图是之前学长的做实验拍的。</p>
+<h5 id="Arm实验"><a href="#Arm实验" class="headerlink" title="Arm实验"></a>Arm实验</h5><p>&emsp;&emsp;全程写 Arm汇编&#x2F;C，然后仿真看看波形，也不上板，偏简单，没啥好说的</p>
+<h5 id="马原小科普文"><a href="#马原小科普文" class="headerlink" title="马原小科普文"></a>马原小科普文</h5><p>&emsp;&emsp;题目是《编译器的魔法：从“人话”到“机器语言”的哲学思考》（逆天）</p>
+<h3 id="做项目-课外实验"><a href="#做项目-课外实验" class="headerlink" title="做项目&#x2F;课外实验"></a><strong>做项目&#x2F;课外实验</strong></h3><h5 id="rotvi"><a href="#rotvi" class="headerlink" title="rotvi"></a>rotvi</h5><p>&emsp;&emsp;一个类似 vi 的 CLI 文本编辑器小玩具<br><img src="/../assets/img/2025/4.png"><br>&emsp;&emsp;对比展示如图<br><br><br>&emsp;&emsp;整体比较简单，但是 ncurses 的接口太复古了，文本上色很难受。<br><br>&emsp;&emsp;token类型识别用的是正则表达式（所以无法精准识别），其实完全可以考虑内置一个 C 的前端获取 Ast 信息。<br><br>&emsp;&emsp;地址：<a target="_blank" rel="noopener" href="https://github.com/Leakbox258/rotvi">https://github.com/Leakbox258/rotvi</a></p>
+<h5 id="新-OS"><a href="#新-OS" class="headerlink" title="新 OS"></a>新 OS</h5><p>&emsp;&emsp;fedora 42，稳定性挺好，rpm 和 dnf 也还可以，N卡支持意外的好（不知道啥时候的一个更新之后），不过弄 CUDA 需要上点<a target="_blank" rel="noopener" href="https://forum.level1techs.com/t/cuda-12-9-on-fedora-42-guide-including-getting-cuda-samples-running/230769">魔法</a>，但是已安装字体太少，ibus更是一坨。<br><img src="/../assets/img/2025/fedora.png"></p>
+<h5 id="gnalc"><a href="#gnalc" class="headerlink" title="gnalc"></a>gnalc</h5><p>&emsp;&emsp;编译系统实现赛（华子赞助，奖金不老少）的参赛作品，拿了一个全国第一和一个外卡二等奖，被<a target="_blank" rel="noopener" href="https://github.com/caozhanhao">@caozhanhao</a>带飞了说是。<br><br><br>&emsp;&emsp;从24年11月份做到25年8月份，尼卓不得不评鉴的马拉松比赛，累积约13万行的修改</p>
+<div align="center">
+  <img src="/../assets/img/2025/5.png">
+</div>
+&emsp;&emsp;由于我有一个单独的分支，所以交的很多 commit 都一坨一坨的，习惯不好。<br>
+&emsp;&emsp;地址：[https://github.com/0x676e616c63/gnalc](https://github.com/0x676e616c63/gnalc)
+##### C-Blunt
+&emsp;&emsp;本意是补上编译器前端和中端的一些知识，C 编译到 mlir-scf，最后展平到 llvm-ir，但是不透明指针和隐式类型转换我又给执行坏了。<br>
+&emsp;&emsp;最后上不去又下不来，变成白银编译器了。<br>
+&emsp;&emsp;地址：[https://github.com/Leakbox258/C-Blunt](https://github.com/Leakbox258/C-Blunt)
+##### rustlings & rcore
+&emsp;&emsp;有 rust 和 OS 基础的情况下，rcore 部分大概一周就能看完做完，反正挺轻松的。<br>
+&emsp;&emsp;宣传一下尼软的 rcore 训练营：[https://github.com/uestc-workshop-os-camp](https://github.com/uestc-workshop-os-camp)
+&emsp;&emsp;有意向春夏季打全国大学生操作系统实现赛/挑战赛的请联系负责人或者加QQ群了解。
+##### etoy
+&emsp;&emsp;魔改 google 的 mlir 教程得到的 tensor 计算器，作为对 mlir 实现 ai-compiler 的一点基本的了解和尝试。
+&emsp;&emsp;ps：LLVM 编译笑传之吃撑爆，最后只能限制到只用4个核<br>
+&emsp;&emsp;地址：[https://github.com/Leakbox258/etoy-mlir](https://github.com/Leakbox258/etoy-mlir)
+##### riscv-as
+&emsp;&emsp;可拓展的 RISC-V 汇编器，现在能支持 riscv64-gc 所有的指令/伪指令，不过宏指令支持比较少。
+&emsp;&emsp;指令和伪指令的模式配置在`.def`文件中，并且所有这方面的过程都是constexpr的。
+- 对指令的 Encoding 模式直接 slice 然后记录即可。
+- 对于伪指令则是写了一个 constexpr Lisp 解析器，毕竟汇编的OpCode前置确实很像 Lisp 的算符前置。灵感来源：[https://github.com/AdUhTkJm/sysy-competition](https://github.com/AdUhTkJm/sysy-competition) 中 &emsp;&emsp;RegularFold 优化中设计的DSL
+
+<p>&emsp;&emsp;ps：IDA 拿来看 Obj 确实好用，虽然已经不打 CTF 了<br></p>
+<p>&emsp;&emsp;地址：<a target="_blank" rel="noopener" href="https://github.com/Leakbox258/riscv-as.git">https://github.com/Leakbox258/riscv-as.git</a></p>
+<h5 id="Tai-e-assignments"><a href="#Tai-e-assignments" class="headerlink" title="Tai-e-assignments"></a>Tai-e-assignments</h5><p>&emsp;&emsp;今年看了853分钟甜品专家 :）</p>
+<div align="center">
+  <img src="/../assets/img/2025/6.png">
+</div>
+
+<p>&emsp;&emsp;地址：<a target="_blank" rel="noopener" href="https://tai-e.pascal-lab.net/">https://tai-e.pascal-lab.net</a><br><br>&emsp;&emsp;前3个实验都不算难，毕竟写过类似的东西，不过 ir 和 cfg 和之前接触过的不一样，加上我在此之前都没学过 java，所以看代码花了不少时间。<br><br>&emsp;&emsp;指针分析到别名分析开始上强度，java 写起来很啰嗦，debug花了不少时间。<br><br>&emsp;&emsp;最后的污点分析，OJ上最后的一个testcase卡了快一个月（虽然是中途做别的去了）</p>
+<h5 id="riscv64-软核"><a href="#riscv64-软核" class="headerlink" title="riscv64 软核"></a>riscv64 软核</h5><p>&emsp;&emsp;（某种意义上的入组笔试）<br><br>&emsp;&emsp;本来打算的是跟着一生一芯的进度学的，于是连了三四天的logisim。<br><img src="/../assets/img/2025/7.png"><br>&emsp;&emsp;大概完成E阶段之后（补习数电知识之后），基本就是跳着看文档，找其中有用的东西搬到我的项目中再改改配置。<br><br>&emsp;&emsp;在完成了一个单周期 MVP 之后，就从 Verilog 改用了 SystemVerilog，Verilog 没 struct 根本不是给人看的。<br><br>&emsp;&emsp;之后的经历是：</p>
+<ul>
+<li>哈佛架构改冯诺伊曼架构</li>
+<li>64位加法链太长，所以得单周期改5级流水线</li>
+<li>Quartus Lite 对 SystemVerilog 支持有限所以用工具转回 Verilog</li>
+<li>大型 reg&#x2F;logic 数组难以综合，故改成调 IP 核</li>
+<li>IP 核构建的同步 RAM 需要缓冲，又加两个流水级</li>
+<li>前递逻辑导致关键路径太长，再加一级流水级</li>
+<li>新的前递逻辑导致出现一条新的关键路径，重写 ALU 部分，提升并行性</li>
+</ul>
+<p>&emsp;&emsp;其实就是面多加水水多加面的过程，最后保持了在FPGA默认的50MHZ下能时序收敛，无需PLL调频。<br><br>&emsp;&emsp;可以拿来做编译系统的测试平台:）<br></p>
+<p>&emsp;&emsp;地址：<a target="_blank" rel="noopener" href="https://github.com/Leakbox258/riscv64i">https://github.com/Leakbox258/riscv64i</a></p>
+<h5 id="新建文件夹"><a href="#新建文件夹" class="headerlink" title="新建文件夹"></a>新建文件夹</h5><p>&emsp;&emsp;包括不限于 <a target="_blank" rel="noopener" href="https://opencamp.cn/">https://opencamp.cn</a> 上一大堆 fork 了但是一直没写的东西，综设的 Linker，还有 SICP .</p>
+<h3 id="Game🥌"><a href="#Game🥌" class="headerlink" title="Game🥌"></a><strong>Game🥌</strong></h3><h5 id="MGSV"><a href="#MGSV" class="headerlink" title="MGSV"></a>MGSV</h5><p>&emsp;&emsp;I’m afraid it’s been…10 years<br><br>&emsp;&emsp;**剧烈地振动**<br><img src="/../assets/img/2025/8.png"></p>
+<h5 id="S-T-A-L-K-E-R-2"><a href="#S-T-A-L-K-E-R-2" class="headerlink" title="S.T.A.L.K.E.R.2"></a>S.T.A.L.K.E.R.2</h5><p>&emsp;&emsp;将近200个小时的游戏时间，2次哈基夫结局，1次牢疤结局</p>
+<ul>
+<li>1.6更新夜视仪之后基本就是一个完全可玩的状态了，不过罗斯托克或者熔渣堆这种npc很多场景还是会卡，内存泄漏还是没修</li>
+<li>我看这1.7更新搞得不错，变异体极大丰富，潜行者基本消灭，怪物内战、神器刷新（指能刷出切尔诺贝利之心，史特列牢克的一辈子）也受重视，如果加上更多奇美拉和大脚怪，1.7就是我们理想中的特异区</li>
+<li>1.8加了一个大概3小时流程的支线，僵尸电台本意是好的，但是流水账的任务设计又给执行坏了。<br><img src="/../assets/img/2025/9.png"></li>
+</ul>
+<h5 id="紫球"><a href="#紫球" class="headerlink" title="紫球"></a>紫球</h5><p>&emsp;&emsp;最喜欢的玩法是沙漠之旅3v3，开局直接拉基地偷掉对位一家 AI 变成3打2<br><img src="/../assets/img/2025/10.png"></p>
+<h5 id="Stalker-Anomaly"><a href="#Stalker-Anomaly" class="headerlink" title="Stalker Anomaly"></a>Stalker Anomaly</h5><p>&emsp;&emsp;一边玩儿一边看 Log 然后修 Bug 说是<br><br>&emsp;&emsp;图为 GAMMA 0.94<br><img src="/../assets/img/2025/11.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="https://leakbox258.github.io">Leakbox</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="https://leakbox258.github.io/2026/01/02/2026-1-2-%E5%9B%9E%E9%A1%BE2025/">https://leakbox258.github.io/2026/01/02/2026-1-2-%E5%9B%9E%E9%A1%BE2025/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/none/">none</a></div><div class="post-share"><div class="social-share" data-image="https://avatars.githubusercontent.com/u/149575179?s=40&amp;v=4" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/19/2026-5-19-%E7%89%B9%E5%BC%82%E5%8C%BA%E4%B9%8B%E5%AD%90%20P1/" title="特异区之子 P1"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">特异区之子 P1</div></div><div class="info-2"><div class="info-item-1">《特异区之子》是 GSC Game World 的游戏《潜行者:切尔诺贝利的阴影》在 2003 以及之前的早期开发版本《潜行者:遗忘之都》的剧本原型。随着开发转型，《遗忘之都》的许多设定包括大量的剧情被抛弃。但是在大概 5~6 年之后，这些原先的剧本被重新整理并发布在一家俄语杂志上:俄文第一部分，也就是《潜行者:遗忘之都》的原型 俄文第二、三部分，这部分就是作者鬼脑启动，映射现实（但也不知道在说什么） 本文是该杂志的中文翻译版本，由 DeepSeekV4 完成，本文包括大量虚构内容。手动进行了部分的精校验工作，以及有提示性的注释。Ps：DeepSeek 原文特别喜欢用“嘟囔”这个词，我tm小学都不用了，完全破坏了原本的恐怖和神秘主义氛围，搞的跟到特异区郊游一样。 背景切尔诺贝利灾难的后果1986年切尔诺贝利核电站灾难的后果至今仍是研究的重点。 由约翰·乌尔克瓦特教授领导的一组英国研究人员得出结论，放射性云层的飘移可能影响了包括英国在内的许多欧洲国家居民的健康状况。 科学家们分析了英格兰和威尔士的儿童死亡率和发病率数据。发表在《新科学家》杂志上的一篇文章指出，在放射性云层经过后的3...</div></div></div></a><a class="pagination-related" href="/2025/11/06/2025-11-6-Compiler%20BackEnd%20Pre/" title="Compiler BackEnd Pre"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">Compiler BackEnd Pre</div></div><div class="info-2"><div class="info-item-1"> </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://avatars.githubusercontent.com/u/149575179?s=40&amp;v=4" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Leakbox</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">20</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Leakbox258" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="https://space.bilibili.com/357341955" target="_blank" title="Bilibili"><i class="fab fa-bilibili" style="color: #000000;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E8%AF%BE"><span class="toc-number">1.</span> <span class="toc-text">上课</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%9A%E5%AE%9E%E9%AA%8C"><span class="toc-number">2.</span> <span class="toc-text">做实验</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B0%BC%E5%8D%93%E8%AE%A1%E7%BD%91%E5%AE%9E%E9%AA%8C%E2%80%94OpenWrt"><span class="toc-number">2.1.</span> <span class="toc-text">尼卓计网实验—OpenWrt</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B0%BC%E5%8D%93%E7%9A%84OS%E5%AE%9E%E9%AA%8C"><span class="toc-number">2.2.</span> <span class="toc-text">尼卓的OS实验</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Arm%E5%AE%9E%E9%AA%8C"><span class="toc-number">2.3.</span> <span class="toc-text">Arm实验</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A9%AC%E5%8E%9F%E5%B0%8F%E7%A7%91%E6%99%AE%E6%96%87"><span class="toc-number">2.4.</span> <span class="toc-text">马原小科普文</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%9A%E9%A1%B9%E7%9B%AE-%E8%AF%BE%E5%A4%96%E5%AE%9E%E9%AA%8C"><span class="toc-number">3.</span> <span class="toc-text">做项目&#x2F;课外实验</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#rotvi"><span class="toc-number">3.1.</span> <span class="toc-text">rotvi</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%96%B0-OS"><span class="toc-number">3.2.</span> <span class="toc-text">新 OS</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#gnalc"><span class="toc-number">3.3.</span> <span class="toc-text">gnalc</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Tai-e-assignments"><span class="toc-number">3.4.</span> <span class="toc-text">Tai-e-assignments</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#riscv64-%E8%BD%AF%E6%A0%B8"><span class="toc-number">3.5.</span> <span class="toc-text">riscv64 软核</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-number">3.6.</span> <span class="toc-text">新建文件夹</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Game%F0%9F%A5%8C"><span class="toc-number">4.</span> <span class="toc-text">Game🥌</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#MGSV"><span class="toc-number">4.1.</span> <span class="toc-text">MGSV</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#S-T-A-L-K-E-R-2"><span class="toc-number">4.2.</span> <span class="toc-text">S.T.A.L.K.E.R.2</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%B4%AB%E7%90%83"><span class="toc-number">4.3.</span> <span class="toc-text">紫球</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Stalker-Anomaly"><span class="toc-number">4.4.</span> <span class="toc-text">Stalker Anomaly</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/07/10/2026-7-10-Hector/" title="ICCAD 2022 hector">ICCAD 2022 hector</a><time datetime="2026-07-09T16:00:00.000Z" title="Created 2026-07-10 00:00:00">2026-07-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/06/30/2026-6-30-LF%20Vol1%20Ch1/" title="Software Foundations Vol1 - Basics">Software Foundations Vol1 - Basics</a><time datetime="2026-06-29T16:00:00.000Z" title="Created 2026-06-30 00:00:00">2026-06-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/06/06/2026-6-6-%E7%89%B9%E5%BC%82%E5%8C%BA%E4%B9%8B%E5%AD%90%20P2%20P3/" title="特异区之子 P2 P3">特异区之子 P2 P3</a><time datetime="2026-06-05T16:00:00.000Z" title="Created 2026-06-06 00:00:00">2026-06-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/19/2026-5-19-%E7%89%B9%E5%BC%82%E5%8C%BA%E4%B9%8B%E5%AD%90%20P1/" title="特异区之子 P1">特异区之子 P1</a><time datetime="2026-05-18T16:00:00.000Z" title="Created 2026-05-19 00:00:00">2026-05-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/01/02/2026-1-2-%E5%9B%9E%E9%A1%BE2025/" title="2025回顾">2025回顾</a><time datetime="2026-01-01T16:00:00.000Z" title="Created 2026-01-02 00:00:00">2026-01-02</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Leakbox</span><span class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.5"></script><script src="/js/main.js?v=5.5.5"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
