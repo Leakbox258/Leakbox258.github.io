@@ -204,3 +204,6 @@ aside:
     # Formal: Month/Day/Year Time or Year/Month/Day Time
     # Leave it empty if you don't enable this feature
     runtime_date:
+inject:
+  head:
+    - <link rel="stylesheet" href="/css/custom.css">
